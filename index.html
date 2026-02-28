@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#14694B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>LSR VIP DATA HUB v6</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTFNSIFZJUCBEQVRBIEhVQiIsInNob3J0X25hbWUiOiJMU1IgSFVCIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNGM0YwRUEiLCJ0aGVtZV9jb2xvciI6IiMxNDY5NEIifQ==">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   LSR VIP DATA HUB v6 — Design System
+   ═══════════════════════════════════════ */
+:root {
+  --bg: #F3F0EA; --bg2: #FFFFFF; --bg3: #FAF8F4; --bg4: #EDEAE3;
+  --a1: #14694B; --a2: #1E9E6A; --a3: #E5F4EC; --a4: rgba(20,105,75,.10); --a5: rgba(20,105,75,.06);
+  --gd: #B8872E; --gl: #F5E5C5; --gp: #FBF5EB;
+  --r1: #CF3B40; --r3: #FDE7E7;
+  --o1: #D98420; --o3: #FFF2DF;
+  --b1: #2870B0; --b3: #E0EFFA;
+  --t1: #151515; --t2: #505050; --t3: #8A8A8A; --t4: #B0B0B0;
+  --bd: #DDD8CE; --bd2: #EBE7DF;
+  --sh1: 0 1px 3px rgba(0,0,0,.04); --sh2: 0 4px 14px rgba(0,0,0,.06); --sh3: 0 10px 40px rgba(0,0,0,.08);
+  --shA: 0 4px 18px rgba(20,105,75,.12);
+  --r: 14px; --rs: 9px;
+}
+.dark {
+  --bg: #111118; --bg2: #1A1A24; --bg3: #20202C; --bg4: #15151E;
+  --a3: #122E22; --a4: rgba(30,158,106,.15); --a5: rgba(30,158,106,.08);
+  --gp: #2A2418; --gl: #3A2E18; --r3: #2E1618; --o3: #2E2414; --b3: #162030;
+  --t1: #E8E8F0; --t2: #A0A0B8; --t3: #666680; --t4: #444458;
+  --bd: #2A2A3A; --bd2: #222232;
+  --sh1: 0 1px 3px rgba(0,0,0,.2); --sh2: 0 4px 14px rgba(0,0,0,.3);
+}
+
+/* Reset */
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--t1); min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; transition:background .3s,color .3s; }
+
+/* Header */
+.hd { background:var(--bg2); border-bottom:1px solid var(--bd2); padding:14px 16px 0; position:sticky; top:0; z-index:100; box-shadow:var(--sh1); transition:background .3s; }
+.hd-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.logo { display:flex; align-items:center; gap:10px; }
+.logo-m { width:40px; height:40px; background:linear-gradient(135deg,var(--a1),var(--a2)); border-radius:11px; display:flex; align-items:center; justify-content:center; font-family:Outfit; font-weight:900; font-size:16px; color:#fff; box-shadow:var(--shA); }
+.logo-t { font-family:Outfit; font-size:16px; font-weight:800; letter-spacing:-.5px; line-height:1.1; }
+.logo-s { font-family:Outfit; font-size:9px; font-weight:700; color:var(--a1); letter-spacing:2.5px; text-transform:uppercase; margin-top:1px; }
+.logo-v { font-size:8px; font-weight:600; color:var(--t3); font-family:'DM Mono'; }
+.hd-r { display:flex; align-items:center; gap:8px; }
+.live { display:flex; align-items:center; gap:4px; padding:4px 10px; background:var(--a3); border-radius:16px; font-size:10px; font-weight:800; color:var(--a1); }
+.live-d { width:6px; height:6px; background:var(--a2); border-radius:50%; animation:lp 2s infinite; }
+@keyframes lp { 0%,100%{opacity:1} 50%{opacity:.4} }
+.dm-b { width:30px; height:30px; border-radius:8px; border:1px solid var(--bd); background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; transition:all .2s; }
+.dm-b:hover { border-color:var(--a1); }
+
+/* Navigation */
+.nav { display:flex; gap:1px; overflow-x:auto; scrollbar-width:none; margin:0 -16px; padding:0 16px; }
+.nav::-webkit-scrollbar { display:none; }
+.nv { padding:9px 10px; font-size:11.5px; font-weight:700; color:var(--t3); border:none; background:none; cursor:pointer; white-space:nowrap; border-bottom:2.5px solid transparent; margin-bottom:-1px; font-family:'Noto Sans KR'; transition:color .2s; }
+.nv.on { color:var(--a1); border-bottom-color:var(--a1); }
+
+/* Main */
+.mn { padding:14px; max-width:640px; margin:0 auto; padding-bottom:80px; }
+.pn { display:none; animation:fi .3s ease; }
+.pn.on { display:block; }
+@keyframes fi { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* Card */
+.cd { background:var(--bg2); border:1px solid var(--bd2); border-radius:var(--r); padding:18px; margin-bottom:12px; box-shadow:var(--sh1); transition:all .2s; }
+.cd:hover { box-shadow:var(--sh2); }
+.cd-h { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.cd-t { font-size:14px; font-weight:800; display:flex; align-items:center; gap:7px; }
+
+/* Icons */
+.ic { width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+.ig { background:var(--a3); } .io { background:var(--gp); } .ir { background:var(--r3); } .ib { background:var(--b3); } .iw { background:var(--o3); }
+
+/* Badges */
+.bg { padding:2px 9px; border-radius:16px; font-size:10px; font-weight:800; }
+.bg-g { background:var(--a3); color:var(--a1); } .bg-o { background:var(--gp); color:var(--gd); }
+.bg-r { background:var(--r3); color:var(--r1); } .bg-b { background:var(--b3); color:var(--b1); }
+
+/* Form */
+.fg { margin-bottom:14px; }
+.fl { font-size:11px; font-weight:700; color:var(--t2); margin-bottom:5px; display:block; letter-spacing:.3px; }
+.fi, .fs, .ft { width:100%; padding:11px 13px; background:var(--bg3); border:1.5px solid var(--bd); border-radius:var(--rs); color:var(--t1); font-family:'Noto Sans KR'; font-size:13px; font-weight:500; outline:none; transition:all .2s; }
+.fi:focus, .fs:focus, .ft:focus { border-color:var(--a1); background:var(--bg2); box-shadow:0 0 0 3px var(--a4); }
+.ft { min-height:90px; resize:vertical; line-height:1.6; }
+.fs { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23505050' viewBox='0 0 16 16'%3E%3Cpath d='M8 12L2 6h12z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; }
+.dt-r { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+
+/* Toggle */
+.tgl-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--bd2); }
+.tgl-row:last-child { border-bottom:none; }
+.tgl-name { font-size:12px; font-weight:700; color:var(--t1); }
+.tgl { position:relative; width:40px; height:22px; flex-shrink:0; }
+.tgl input { opacity:0; width:0; height:0; }
+.tgl-s { position:absolute; cursor:pointer; inset:0; background:var(--bd); border-radius:11px; transition:.3s; }
+.tgl-s::before { content:''; position:absolute; height:16px; width:16px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; }
+.tgl input:checked+.tgl-s { background:var(--a1); }
+.tgl input:checked+.tgl-s::before { transform:translateX(18px); }
+
+/* Upload */
+.uz { border:2px dashed var(--bd); border-radius:var(--r); padding:24px; text-align:center; cursor:pointer; transition:all .25s; position:relative; background:var(--bg3); }
+.uz:hover, .uz.dg { border-color:var(--a1); background:var(--a3); }
+.uz input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.uz-t { font-size:13px; font-weight:500; color:var(--t2); }
+.uz-t strong { color:var(--a1); font-weight:700; }
+.fc { display:none; padding:9px 12px; background:var(--a3); border:1px solid rgba(20,105,75,.15); border-radius:var(--rs); margin-top:10px; font-size:12px; font-weight:700; color:var(--a1); align-items:center; gap:7px; }
+.fc.sh { display:flex; }
+.fc .fn { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.fc .fx { cursor:pointer; font-weight:800; }
+.file-meta { margin-top:8px; padding:8px 10px; background:var(--bg3); border-radius:var(--rs); font-size:11px; color:var(--t2); display:none; }
+.file-meta.sh { display:block; }
+.file-meta strong { color:var(--t1); }
+
+/* Type Grid */
+.tg { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.tb { padding:10px 5px; border-radius:var(--rs); border:1.5px solid var(--bd); background:var(--bg3); color:var(--t2); font-size:11px; font-weight:700; cursor:pointer; text-align:center; transition:all .2s; font-family:'Noto Sans KR'; line-height:1.3; }
+.tb:hover { border-color:var(--a1); }
+.tb.on { border-color:var(--a1); background:var(--a3); color:var(--a1); box-shadow:0 0 0 3px var(--a5); }
+
+/* Buttons */
+.bp { width:100%; padding:14px; background:linear-gradient(135deg,var(--a1),var(--a2)); color:#fff; border:none; border-radius:var(--r); font-size:14px; font-weight:800; font-family:'Noto Sans KR'; cursor:pointer; box-shadow:var(--shA); transition:all .2s; }
+.bp:hover { transform:translateY(-1px); }
+.bp:active { transform:translateY(0); }
+.bp:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+.bs { padding:10px 16px; background:var(--bg3); color:var(--t1); border:1.5px solid var(--bd); border-radius:var(--rs); font-size:12px; font-weight:700; cursor:pointer; font-family:'Noto Sans KR'; transition:all .2s; }
+.bs:hover { border-color:var(--a1); background:var(--a3); }
+
+/* Stats */
+.sg { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+.sc { background:var(--bg2); border:1px solid var(--bd2); border-radius:var(--rs); padding:12px 8px; text-align:center; box-shadow:var(--sh1); }
+.sn { font-family:Outfit; font-size:26px; font-weight:800; color:var(--a1); line-height:1; }
+.sl { font-size:10px; font-weight:700; color:var(--t3); margin-top:3px; }
+
+/* Expandable Summary */
+.sm { background:var(--bg2); border:1px solid var(--bd2); border-radius:var(--r); margin-bottom:8px; overflow:hidden; box-shadow:var(--sh1); cursor:pointer; transition:all .2s; }
+.sm:hover { box-shadow:var(--sh2); }
+.sm-h { padding:12px 14px; display:flex; align-items:center; gap:10px; }
+.sm-u { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.uh { background:var(--r1); box-shadow:0 0 6px rgba(207,59,64,.4); } .um { background:var(--o1); } .ul { background:var(--a2); }
+.sm-c { flex:1; min-width:0; }
+.sm-tp { display:flex; align-items:center; justify-content:space-between; gap:6px; }
+.sm-tt { font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.sm-mt { font-size:10px; font-weight:600; color:var(--t3); white-space:nowrap; }
+.sm-pv { font-size:11px; font-weight:500; color:var(--t2); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.sm-ch { font-size:14px; color:var(--t4); transition:transform .2s; flex-shrink:0; }
+.sm.ex .sm-ch { transform:rotate(90deg); }
+.sm-d { display:none; padding:0 14px 14px; border-top:1px solid var(--bd2); }
+.sm.ex .sm-d { display:block; padding-top:12px; }
+.sm-dt { font-size:12px; line-height:1.7; white-space:pre-wrap; font-weight:500; }
+
+/* Agreement */
+.ag { padding:12px 14px; background:var(--bg2); border:1px solid var(--bd2); border-radius:var(--rs); margin-bottom:6px; display:flex; align-items:flex-start; gap:10px; box-shadow:var(--sh1); }
+.ag-s { width:20px; height:20px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex-shrink:0; cursor:pointer; }
+.sp { background:var(--o3); color:var(--o1); } .sd { background:var(--a3); color:var(--a1); } .so { background:var(--r3); color:var(--r1); }
+.ag-b { flex:1; }
+.ag-t { font-size:12px; font-weight:700; line-height:1.5; }
+.ag-f { display:flex; align-items:center; gap:6px; margin-top:4px; font-size:10px; color:var(--t3); font-weight:600; flex-wrap:wrap; }
+.ag-dd { padding:1px 6px; border-radius:8px; font-size:9px; font-weight:800; }
+.dd-r { background:var(--r3); color:var(--r1); }
+.dd-o { background:var(--o3); color:var(--o1); }
+.dd-g { background:var(--a3); color:var(--a1); }
+.dd-x { background:var(--r3); color:var(--r1); text-decoration:line-through; }
+
+/* Pin */
+.pin { background:var(--gp); border:1px solid var(--gl); border-left:4px solid var(--gd); border-radius:var(--rs); padding:12px 14px; margin-bottom:10px; position:relative; }
+.pin-h { font-size:11px; font-weight:800; color:var(--gd); margin-bottom:4px; }
+.pin-t { font-size:12px; font-weight:600; line-height:1.5; }
+.pin-x { position:absolute; top:8px; right:10px; cursor:pointer; font-size:14px; color:var(--t4); }
+
+/* Risk */
+.rsk { background:var(--r3); border:1px solid rgba(207,59,64,.15); border-left:4px solid var(--r1); border-radius:var(--rs); padding:12px 14px; margin-bottom:10px; }
+.rsk-h { font-size:11px; font-weight:800; color:var(--r1); margin-bottom:4px; }
+.rsk-t { font-size:12px; font-weight:600; line-height:1.5; }
+
+/* Timeline */
+.tl { position:relative; padding-left:20px; border-left:2px solid var(--bd); }
+.tl-i { position:relative; padding:0 0 14px 16px; }
+.tl-i::before { content:''; position:absolute; left:-26px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--a1); border:2px solid var(--bg2); }
+.tl-dt { font-size:10px; font-family:'DM Mono'; color:var(--t3); }
+.tl-ct { font-size:12px; font-weight:600; margin-top:2px; line-height:1.4; }
+
+/* Search */
+.sb { position:relative; margin-bottom:12px; }
+.si { width:100%; padding:10px 12px 10px 36px; background:var(--bg2); border:1.5px solid var(--bd); border-radius:var(--rs); font-size:13px; font-weight:500; color:var(--t1); outline:none; font-family:'Noto Sans KR'; box-shadow:var(--sh1); transition:all .2s; }
+.si:focus { border-color:var(--a1); box-shadow:0 0 0 3px var(--a4); }
+.sb-ic { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; color:var(--t3); }
+
+/* Recorder */
+.rec { display:flex; align-items:center; gap:8px; padding:10px 14px; background:var(--bg3); border:1.5px solid var(--bd); border-radius:var(--rs); margin-bottom:10px; }
+.rb { width:40px; height:40px; border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.rb-s { background:var(--r1); color:#fff; box-shadow:0 2px 8px rgba(207,59,64,.3); }
+.rb-e { background:var(--t1); color:#fff; }
+.rec-i { flex:1; }
+.rec-l { font-size:11px; font-weight:700; color:var(--t2); }
+.rec-tm { font-family:'DM Mono'; font-size:16px; font-weight:500; }
+.rec-w { display:none; align-items:center; gap:2px; height:18px; }
+.rec-w.sh { display:flex; }
+.rec-w span { width:3px; background:var(--r1); border-radius:2px; animation:wv .8s ease-in-out infinite; }
+.rec-w span:nth-child(1){height:6px} .rec-w span:nth-child(2){height:14px;animation-delay:.1s}
+.rec-w span:nth-child(3){height:8px;animation-delay:.2s} .rec-w span:nth-child(4){height:16px;animation-delay:.3s}
+.rec-w span:nth-child(5){height:5px;animation-delay:.4s}
+@keyframes wv { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(.3)} }
+
+/* Process Steps */
+.ps { display:none; margin-top:14px; }
+.ps.sh { display:block; }
+.si-it { display:flex; align-items:center; gap:10px; padding:9px 0; font-size:12px; font-weight:600; color:var(--t3); border-bottom:1px solid var(--bd2); }
+.si-it:last-child { border-bottom:none; }
+.si-d { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; flex-shrink:0; border:2px solid var(--bd); background:var(--bg3); color:var(--t3); }
+.si-it.rn { color:var(--t1); }
+.si-it.rn .si-d { border-color:var(--o1); background:var(--o3); color:var(--o1); animation:stP 1s infinite; }
+.si-it.dn { color:var(--t2); }
+.si-it.dn .si-d { border-color:var(--a1); background:var(--a3); color:var(--a1); }
+.si-it.er .si-d { border-color:var(--r1); background:var(--r3); color:var(--r1); }
+@keyframes stP { 0%,100%{box-shadow:0 0 0 0 rgba(217,132,32,.3)} 50%{box-shadow:0 0 0 5px rgba(217,132,32,0)} }
+
+/* STT Progress */
+.stt-prog { margin-top:6px; display:none; }
+.stt-prog.sh { display:block; }
+.stt-bar { height:4px; background:var(--bg4); border-radius:2px; overflow:hidden; }
+.stt-fill { height:100%; background:var(--a1); border-radius:2px; transition:width .3s; width:0%; }
+.stt-lbl { font-size:10px; color:var(--t3); font-family:'DM Mono'; margin-top:3px; }
+
+/* Result Box */
+.rx { display:none; background:var(--a3); border:1.5px solid rgba(20,105,75,.15); border-radius:var(--r); padding:18px; margin-top:14px; }
+.rx.sh { display:block; animation:fi .35s ease; }
+.rx-t { font-size:14px; font-weight:800; color:var(--a1); margin-bottom:10px; }
+.rx-c { font-size:12px; line-height:1.8; white-space:pre-wrap; font-weight:500; }
+
+/* Quick Grid */
+.qg { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+.qb { padding:14px 10px; background:var(--bg2); border:1.5px solid var(--bd); border-radius:var(--r); font-size:12px; font-weight:700; cursor:pointer; text-align:center; font-family:'Noto Sans KR'; box-shadow:var(--sh1); transition:all .2s; }
+.qb:hover { border-color:var(--a1); background:var(--a3); }
+.qb .qi { font-size:22px; display:block; margin-bottom:4px; }
+
+/* Files */
+.fl-tree { padding:0; list-style:none; }
+.fl-tree li { padding:8px 12px; border-bottom:1px solid var(--bd2); font-size:12px; font-weight:600; display:flex; align-items:center; gap:8px; }
+.fl-tree li .f-n { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.fl-tree li .f-d { font-size:10px; font-family:'DM Mono'; color:var(--t3); }
+.fl-tree li .f-t { font-size:9px; padding:2px 7px; border-radius:10px; font-weight:700; }
+.fl-f { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; }
+.fl-f .fb { padding:5px 10px; border-radius:14px; border:1px solid var(--bd); background:var(--bg3); font-size:10px; font-weight:700; cursor:pointer; color:var(--t2); font-family:'Noto Sans KR'; }
+.fl-f .fb.on { background:var(--a3); border-color:var(--a1); color:var(--a1); }
+.fs-g { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+.fs-bar { height:6px; border-radius:3px; background:var(--bg4); overflow:hidden; margin-top:4px; }
+.fs-fill { height:100%; border-radius:3px; }
+
+/* Person Card */
+.pc { background:var(--bg2); border:1px solid var(--bd2); border-radius:var(--rs); padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:12px; box-shadow:var(--sh1); }
+.pc-av { width:38px; height:38px; border-radius:10px; background:var(--a3); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:var(--a1); flex-shrink:0; }
+.pc-info { flex:1; min-width:0; }
+.pc-nm { font-size:13px; font-weight:800; }
+.pc-sub { font-size:11px; font-weight:500; color:var(--t2); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pc-meta { font-size:10px; color:var(--t3); font-weight:600; }
+.pc-link { font-size:10px; color:var(--b1); font-weight:600; text-decoration:none; margin-top:2px; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* Log */
+.lg { padding:12px 14px; background:var(--bg2); border:1px solid var(--bd2); border-radius:var(--rs); margin-bottom:6px; border-left:4px solid var(--a1); box-shadow:var(--sh1); cursor:pointer; transition:all .2s; }
+.lg:hover { box-shadow:var(--sh2); }
+.lg-tm { font-size:10px; font-family:'DM Mono'; color:var(--t3); margin-bottom:3px; }
+.lg-mg { font-size:12px; font-weight:600; line-height:1.5; }
+.lg-detail { display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--bd2); font-size:11px; line-height:1.7; white-space:pre-wrap; color:var(--t2); }
+.lg.ex .lg-detail { display:block; }
+
+/* Settings */
+.st-r { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--bd2); }
+.st-r:last-child { border-bottom:none; }
+.st-n { font-size:13px; font-weight:700; }
+.cn { padding:2px 9px; border-radius:14px; font-size:10px; font-weight:800; }
+.cn-y { background:var(--a3); color:var(--a1); }
+.cn-n { background:var(--r3); color:var(--r1); }
+
+/* Guide */
+.guide { background:var(--b3); border:1px solid rgba(40,112,176,.15); border-left:4px solid var(--b1); border-radius:var(--rs); padding:14px; margin-bottom:12px; font-size:12px; line-height:1.7; color:var(--t1); }
+.guide-h { font-size:12px; font-weight:800; color:var(--b1); margin-bottom:6px; }
+.guide ol { padding-left:18px; margin:0; }
+.guide li { margin-bottom:3px; font-weight:500; }
+
+/* Section Header */
+.sh-h { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding:0 2px; }
+.sh-t { font-size:15px; font-weight:900; letter-spacing:-.3px; }
+.sh-a { font-size:11px; font-weight:700; color:var(--a1); cursor:pointer; padding:3px 8px; border-radius:5px; }
+.sh-a:hover { background:var(--a3); }
+
+/* Chart */
+.chart-wrap { background:var(--bg2); border:1px solid var(--bd2); border-radius:var(--r); padding:16px; margin-bottom:12px; box-shadow:var(--sh1); }
+.chart-title { font-size:12px; font-weight:800; margin-bottom:10px; }
+.chart-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.chart-bar-label { font-size:10px; font-weight:700; color:var(--t2); width:40px; text-align:right; }
+.chart-bar-track { flex:1; height:20px; background:var(--bg4); border-radius:4px; overflow:hidden; }
+.chart-bar-fill { height:100%; border-radius:4px; transition:width .5s ease; display:flex; align-items:center; justify-content:flex-end; padding-right:6px; font-size:9px; font-weight:800; color:#fff; min-width:24px; }
+.chart-bar-val { font-size:10px; font-weight:700; color:var(--t3); width:28px; }
+
+/* Empty */
+.emp { text-align:center; padding:30px 16px; }
+.emp-i { font-size:40px; margin-bottom:8px; }
+.emp p { font-size:13px; font-weight:500; color:var(--t3); line-height:1.6; }
+
+/* Toast */
+.tst { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(100px); padding:12px 24px; background:var(--t1); color:var(--bg2); font-size:13px; font-weight:700; border-radius:24px; z-index:999; transition:transform .3s cubic-bezier(.16,1,.3,1); box-shadow:var(--sh3); white-space:nowrap; }
+.tst.sh { transform:translateX(-50%) translateY(0); }
+
+/* Export Bar */
+.exp-bar { display:flex; gap:6px; margin-bottom:12px; }
+.exp-bar .bs { flex:1; text-align:center; font-size:11px; }
+
+/* ═══ Unified Scanner v6 ═══ */
+.scan-zone { border:2px dashed var(--a1); border-radius:var(--r); padding:28px 16px; text-align:center; cursor:pointer; background:linear-gradient(135deg,var(--a5),var(--bg3)); transition:all .3s; position:relative; }
+.scan-zone:hover, .scan-zone.dg { border-color:var(--a2); background:linear-gradient(135deg,var(--a3),var(--bg2)); transform:translateY(-1px); box-shadow:var(--sh2); }
+.scan-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.scan-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:12px; font-size:9px; font-weight:800; margin:2px; }
+.scan-badge.sb-xl { background:#E8F5E9; color:#2E7D32; } .scan-badge.sb-pdf { background:#FDE7E7; color:#C62828; }
+.scan-badge.sb-txt { background:#E0EFFA; color:#1565C0; } .scan-badge.sb-aud { background:#FFF2DF; color:#E65100; }
+.scan-badge.sb-img { background:#F3E5F5; color:#6A1B9A; }
+.dark .scan-badge.sb-xl { background:#1B3A1B; } .dark .scan-badge.sb-pdf { background:#3A1B1B; }
+.dark .scan-badge.sb-txt { background:#1B2A3A; } .dark .scan-badge.sb-aud { background:#3A2A1B; }
+.scan-prog { display:none; margin-top:12px; }
+.scan-prog.sh { display:block; }
+.scan-bar { height:6px; background:var(--bg4); border-radius:3px; overflow:hidden; }
+.scan-fill { height:100%; background:linear-gradient(90deg,var(--a1),var(--a2)); border-radius:3px; transition:width .4s; width:0%; }
+.scan-lbl { font-size:10px; color:var(--t3); font-family:'DM Mono'; margin-top:4px; }
+.scan-preview { display:none; margin-top:10px; max-height:180px; overflow-y:auto; padding:10px 12px; background:var(--bg3); border:1px solid var(--bd); border-radius:var(--rs); font-size:11px; line-height:1.6; color:var(--t2); white-space:pre-wrap; font-family:'DM Mono','Noto Sans KR'; }
+.scan-preview.sh { display:block; }
+.auto-tag { display:inline-flex; align-items:center; gap:3px; padding:2px 8px; border-radius:10px; font-size:9px; font-weight:800; background:var(--a3); color:var(--a1); margin-left:4px; animation:fi .3s ease; }
+.scan-result { display:none; margin-top:10px; padding:12px; background:var(--a3); border:1px solid rgba(20,105,75,.15); border-radius:var(--rs); }
+.scan-result.sh { display:block; animation:fi .3s ease; }
+.scan-result-h { font-size:12px; font-weight:800; color:var(--a1); margin-bottom:6px; }
+.scan-result-row { display:flex; align-items:center; gap:6px; padding:4px 0; font-size:11px; font-weight:600; }
+.scan-result-row .sr-label { color:var(--t3); min-width:50px; }
+.scan-result-row .sr-value { color:var(--t1); flex:1; }
+.multi-files { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.mf-chip { display:flex; align-items:center; gap:5px; padding:5px 10px; background:var(--bg2); border:1px solid var(--bd); border-radius:var(--rs); font-size:11px; font-weight:600; max-width:100%; }
+.mf-chip .mf-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:160px; }
+.mf-chip .mf-x { cursor:pointer; color:var(--t4); font-weight:800; }
+.mf-chip.scanning { border-color:var(--o1); background:var(--o3); }
+.mf-chip.done { border-color:var(--a1); background:var(--a3); }
+
+@media(max-width:380px) { .sg{grid-template-columns:repeat(2,1fr)} .tg{grid-template-columns:repeat(2,1fr)} }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hd">
+  <div class="hd-top">
+    <div class="logo">
+      <div class="logo-m">LSR</div>
+      <div>
+        <div class="logo-t">VIP DATA HUB</div>
+        <div class="logo-s">Lee Sung Rok Intelligence</div>
+        <div class="logo-v">v6.0</div>
+      </div>
+    </div>
+    <div class="hd-r">
+      <div class="live"><div class="live-d"></div>LIVE</div>
+      <div class="dm-b" onclick="toggleDark()" id="dmBtn">🌙</div>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nv on" data-p="dash">📊 대시보드</button>
+    <button class="nv" data-p="input">📤 입력</button>
+    <button class="nv" data-p="ai">🧠 AI</button>
+    <button class="nv" data-p="files">📁 파일</button>
+    <button class="nv" data-p="ppl">👤 인물</button>
+    <button class="nv" data-p="log">📋 로그</button>
+    <button class="nv" data-p="cfg">⚙️ 설정</button>
+  </div>
+</div>
+
+<div class="mn">
+
+<!-- ══════ DASHBOARD ══════ -->
+<div class="pn on" id="p-dash">
+  <div class="sg">
+    <div class="sc"><div class="sn" id="stAll">0</div><div class="sl">전체</div></div>
+    <div class="sc"><div class="sn" id="stCall">0</div><div class="sl">통화</div></div>
+    <div class="sc"><div class="sn" id="stKakao">0</div><div class="sl">카톡</div></div>
+    <div class="sc"><div class="sn" id="stMeet">0</div><div class="sl">미팅</div></div>
+  </div>
+  <div id="pinArea"></div>
+  <div id="riskArea"></div>
+  <div class="sh-h"><div class="sh-t">📌 합의사항</div><div class="sh-a" onclick="goTab('input')">+추가</div></div>
+  <div id="agreeList"><div class="emp"><div class="emp-i">📋</div><p>데이터 입력 시 AI 자동추출</p></div></div>
+  <!-- Chart -->
+  <div id="dashChart"></div>
+  <div class="sh-h" style="margin-top:16px"><div class="sh-t">📋 최근 기록</div><div class="sh-a" onclick="goTab('log')">전체</div></div>
+  <div id="dashRecent"><div class="emp"><div class="emp-i">📭</div><p>기록 없음</p></div></div>
+</div>
+
+<!-- ══════ INPUT ══════ -->
+<div class="pn" id="p-input">
+  <div class="guide"><div class="guide-h">💬 카톡 파일 빠른 저장 가이드</div>
+  <ol>
+    <li>카톡에서 받은 파일 꾹 누르기 → <strong>공유</strong></li>
+    <li><strong>Google Drive</strong> 선택</li>
+    <li>폴더: <strong>VIP_이성록형님 > 01_커뮤니케이션_로그 > 카톡_공유파일</strong></li>
+    <li>저장 후 아래에서 <strong>파일 업로드</strong> 또는 AI가 자동 감지</li>
+  </ol></div>
+
+  <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic ir">🎙️</span>음성 녹음</div><span class="bg bg-r">REC</span></div>
+  <div style="font-size:11px;color:var(--t3);margin-bottom:8px;font-weight:500">📱 핸드폰 · 💻 노트북 · 📱 태블릿 모두 가능</div>
+  <div class="rec"><button class="rb rb-s" id="recBtn" onclick="toggleRecord()">●</button><div class="rec-i"><div class="rec-l" id="recLabel">터치하여 녹음</div><div class="rec-tm" id="recTime">00:00</div></div><div class="rec-w" id="recWave"><span></span><span></span><span></span><span></span><span></span></div></div></div>
+
+  <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic ig">🔬</span>통합 스캔 업로드</div><span class="bg bg-g">v6 AUTO</span></div>
+  <div class="scan-zone" id="dropZone"><input type="file" id="fileInput" multiple accept=".xlsx,.xls,.csv,.txt,.log,.pdf,.doc,.docx,.hwp,.m4a,.mp3,.wav,.ogg,.webm,.flac,.aac,.jpg,.jpeg,.png,.gif"><div style="font-size:32px;margin-bottom:8px">🔬</div><div class="uz-t"><strong>어떤 파일이든 드래그 또는 선택</strong><br><span style="font-size:10px;color:var(--t3)">엑셀 · 메모장 · PDF · 음성 · 이미지 — AI 자동 스캔 & 분류</span></div>
+  <div style="margin-top:8px"><span class="scan-badge sb-xl">📊 Excel</span><span class="scan-badge sb-pdf">📕 PDF</span><span class="scan-badge sb-txt">📝 TXT</span><span class="scan-badge sb-aud">🎙️ Audio</span><span class="scan-badge sb-img">🖼️ Image</span></div></div>
+  <div class="multi-files" id="multiFiles"></div>
+  <div class="scan-prog" id="scanProg"><div class="scan-bar"><div class="scan-fill" id="scanFill"></div></div><div class="scan-lbl" id="scanLabel">대기중...</div></div>
+  <div class="scan-preview" id="scanPreview"></div>
+  <div class="scan-result" id="scanResult"><div class="scan-result-h">🤖 자동 분류 결과</div><div id="scanResultBody"></div></div>
+  <div class="fc" id="fileChip"><span>📎</span><span class="fn" id="fileName"></span><span class="fx" id="fileClear">✕</span></div>
+  <div class="file-meta" id="fileMeta"></div></div>
+
+  <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic io">📋</span>상세 정보</div></div>
+  <div class="fg"><label class="fl">👤 관련 인물</label><select class="fs" id="selPerson"><option value="">선택...</option><option value="이성록형님" selected>이성록 형님</option><option value="__new">+ 새 인물</option></select></div>
+  <div class="fg"><label class="fl">📂 데이터 유형</label><div class="tg" id="typeGrid"><div class="tb" data-t="통화녹취">📞 통화녹취</div><div class="tb" data-t="카톡대화">💬 카톡대화</div><div class="tb" data-t="미팅메모">🤝 미팅메모</div><div class="tb" data-t="계약서">📄 계약서</div><div class="tb" data-t="제안서">📑 제안서</div><div class="tb" data-t="기타">📦 기타</div></div></div>
+  <div class="fg"><label class="fl">🚨 긴급도</label><div class="tg" style="grid-template-columns:repeat(3,1fr)" id="urgGrid"><div class="tb ub" data-u="high">🔴 긴급</div><div class="tb ub on" data-u="medium">🟡 보통</div><div class="tb ub" data-u="low">🟢 일반</div></div></div>
+  <div class="fg"><label class="fl">📅 날짜 / 시간</label><div class="dt-r"><input type="date" class="fi" id="inputDate"><input type="time" class="fi" id="inputTime"></div></div>
+  <div class="fg"><label class="fl">📝 핵심 메모</label><textarea class="ft" id="inputMemo" placeholder="핵심 내용, 기억할 사항..."></textarea></div>
+  <div class="fg"><label class="fl">📌 핀 고정 (대시보드 표시)</label><input type="text" class="fi" id="inputPin" placeholder="항상 보여줄 중요 메모"></div>
+  <div class="fg"><label class="fl">⏰ 기한 (합의사항 D-day 추적)</label><input type="date" class="fi" id="inputDeadline"></div></div>
+
+  <button class="bp" id="submitBtn" onclick="processData()">⚡ 저장 & AI 분석 실행</button>
+  <div class="ps" id="processSteps"><div class="cd" style="margin-top:12px"><div class="cd-t" style="margin-bottom:10px"><span class="ic ib">⚡</span>처리중</div>
+  <div class="si-it" id="step1"><div class="si-d">1</div><span>리턴제로 STT</span></div>
+  <div class="stt-prog" id="sttProg"><div class="stt-bar"><div class="stt-fill" id="sttFill"></div></div><div class="stt-lbl" id="sttLabel">대기중...</div></div>
+  <div class="si-it" id="step2"><div class="si-d">2</div><span>Claude AI 분석</span></div>
+  <div class="si-it" id="step3"><div class="si-d">3</div><span>Gemini 보충 (병렬)</span></div>
+  <div class="si-it" id="step4"><div class="si-d">4</div><span>저장 & 알림</span></div>
+  <div class="si-it" id="step5"><div class="si-d">5</div><span>Google Drive 업로드</span></div>
+  </div></div>
+  <div class="rx" id="resultBox"><div class="rx-t">✅ 분석 완료</div><div class="rx-c" id="resultText"></div></div>
+</div>
+
+<!-- ══════ AI ══════ -->
+<div class="pn" id="p-ai">
+  <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic ib">🧠</span>AI 인텔리전스</div></div>
+  <div class="fg"><textarea class="ft" id="aiQuestion" placeholder="무엇이든 물어보세요..."></textarea></div>
+  <button class="bp" onclick="aiAsk()">🔍 분석 실행</button>
+  <div class="rx" id="aiResultBox" style="margin-top:12px"><div class="rx-t">🧠 결과</div><div class="rx-c" id="aiResultText"></div></div></div>
+  <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic io">⚡</span>빠른 분석</div></div>
+  <div class="qg">
+    <div class="qb" onclick="quickAsk('전체 합의사항 현황과 이행률')"><span class="qi">📊</span>합의현황</div>
+    <div class="qb" onclick="quickAsk('이번 주 전체 활동 요약')"><span class="qi">📅</span>주간요약</div>
+    <div class="qb" onclick="quickAsk('다가오는 기한과 일정 정리')"><span class="qi">⏰</span>예정일정</div>
+    <div class="qb" onclick="quickAsk('현재 위험요소 분석')"><span class="qi">⚠️</span>리스크</div>
+    <div class="qb" onclick="quickAsk('인물 관계도 정리')"><span class="qi">👥</span>관계도</div>
+    <div class="qb" onclick="quickAsk('다음 미팅 협상 전략 제안')"><span class="qi">🎯</span>협상준비</div>
+    <div class="qb" onclick="quickAsk('소통 패턴과 빈도 분석')"><span class="qi">📈</span>패턴분석</div>
+    <div class="qb" onclick="quickAsk('미결 사항 전체 정리')"><span class="qi">📋</span>미결사항</div>
+  </div></div>
+</div>
+
+<!-- ══════ FILES ══════ -->
+<div class="pn" id="p-files">
+  <div class="sb"><span class="sb-ic">🔍</span><input type="text" class="si" id="fileSearch" placeholder="파일 검색..." oninput="filterFiles()"></div>
+  <div class="fs-g" id="fileStats"></div>
+  <div class="exp-bar">
+    <button class="bs" onclick="exportCSV()">📊 CSV 내보내기</button>
+    <button class="bs" onclick="exportReport()">📝 텍스트 리포트</button>
+  </div>
+  <div class="fl-f" id="fileFilters"><div class="fb on" data-f="전체" onclick="setFileFilter(this)">전체</div><div class="fb" data-f="통화녹취" onclick="setFileFilter(this)">📞</div><div class="fb" data-f="카톡대화" onclick="setFileFilter(this)">💬</div><div class="fb" data-f="미팅메모" onclick="setFileFilter(this)">🤝</div><div class="fb" data-f="계약서" onclick="setFileFilter(this)">📄</div><div class="fb" data-f="제안서" onclick="setFileFilter(this)">📑</div><div class="fb" data-f="기타" onclick="setFileFilter(this)">📦</div></div>
+  <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic ig">📁</span>파일 목록</div><span class="bg bg-g" id="fileCount">0건</span></div>
+  <ul class="fl-tree" id="fileList"><li style="display:block;border:none;text-align:center;padding:20px;color:var(--t3)">📂 파일 없음</li></ul></div>
+  <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic io">🗂️</span>폴더 구조</div></div>
+  <div style="font-size:11px;font-family:'DM Mono';line-height:1.8;color:var(--t2);padding:4px 0">📂 VIP_이성록형님/<br>├─ 01_커뮤니케이션_로그/<br>│ ├─ 카톡_대화내역/<br>│ ├─ 카톡_공유파일/<br>│ ├─ 통화녹취_원본/<br>│ ├─ 통화녹취_텍스트변환/<br>│ └─ 문자_SMS/<br>├─ 02_미팅_핵심기록/<br>├─ 03_합의사항_추적/<br>├─ 04_사업문서/<br>│ ├─ 계약서_MOU/<br>│ ├─ 제안서/<br>│ └─ 재무_정산/<br>├─ 05_인물_네트워크/<br>└─ 06_전략메모/</div></div>
+</div>
+
+<!-- ══════ PEOPLE ══════ -->
+<div class="pn" id="p-ppl">
+  <div class="sh-h"><div class="sh-t">👥 등록 인물</div></div>
+  <div id="personList"></div>
+  <div class="cd" style="margin-top:14px"><div class="cd-h"><div class="cd-t"><span class="ic ig">👤</span>새 인물 등록</div></div>
+  <div style="margin-bottom:14px;padding:10px 14px;background:var(--bg3);border-radius:var(--rs);border:1px solid var(--bd)">
+    <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px">📋 입력 항목 ON/OFF</div>
+    <div class="tgl-row"><span class="tgl-name">이름</span><span style="font-size:10px;color:var(--t3)">필수</span></div>
+    <div class="tgl-row"><span class="tgl-name">직함</span><label class="tgl"><input type="checkbox" checked data-pf="pTitle" onchange="togglePersonField(this)"><span class="tgl-s"></span></label></div>
+    <div class="tgl-row"><span class="tgl-name">회사</span><label class="tgl"><input type="checkbox" checked data-pf="pCompany" onchange="togglePersonField(this)"><span class="tgl-s"></span></label></div>
+    <div class="tgl-row"><span class="tgl-name">소개경로</span><label class="tgl"><input type="checkbox" checked data-pf="pRoute" onchange="togglePersonField(this)"><span class="tgl-s"></span></label></div>
+    <div class="tgl-row"><span class="tgl-name">연락처</span><label class="tgl"><input type="checkbox" checked data-pf="pContact" onchange="togglePersonField(this)"><span class="tgl-s"></span></label></div>
+    <div class="tgl-row"><span class="tgl-name">네이버/웹 URL</span><label class="tgl"><input type="checkbox" checked data-pf="pUrl" onchange="togglePersonField(this)"><span class="tgl-s"></span></label></div>
+    <div class="tgl-row"><span class="tgl-name">메모</span><label class="tgl"><input type="checkbox" checked data-pf="pMemo" onchange="togglePersonField(this)"><span class="tgl-s"></span></label></div>
+  </div>
+  <div class="fg"><label class="fl">이름 (필수)</label><input type="text" class="fi" id="pName" placeholder="홍길동"></div>
+  <div class="fg" id="fg_pTitle"><label class="fl">직함</label><input type="text" class="fi" id="pTitle" placeholder="대표이사"></div>
+  <div class="fg" id="fg_pCompany"><label class="fl">회사</label><input type="text" class="fi" id="pCompany" placeholder="(주)회사명"></div>
+  <div class="fg" id="fg_pRoute"><label class="fl">소개경로</label><select class="fs" id="pRoute"><option value="이성록형님">이성록 형님 소개</option><option value="직접">직접</option><option value="기타">기타</option></select></div>
+  <div class="fg" id="fg_pContact"><label class="fl">연락처</label><input type="text" class="fi" id="pContact" placeholder="010-0000-0000"></div>
+  <div class="fg" id="fg_pUrl"><label class="fl">🔗 네이버/웹 프로필 URL</label><input type="url" class="fi" id="pUrl" placeholder="https://search.naver.com/..."><div style="font-size:10px;color:var(--t3);margin-top:4px">URL 입력 시 AI가 정보를 자동 추출합니다</div></div>
+  <div class="fg" id="fg_pMemo"><label class="fl">메모</label><textarea class="ft" id="pMemo" placeholder="이 인물에 대한 정보..."></textarea></div>
+  <button class="bp" onclick="registerPerson()">👤 등록 & AI 프로필 생성</button>
+  <div class="rx" id="personResultBox" style="margin-top:12px"><div class="rx-t">👤 프로필</div><div class="rx-c" id="personResultText"></div></div></div>
+</div>
+
+<!-- ══════ LOG ══════ -->
+<div class="pn" id="p-log">
+  <div class="sb"><span class="sb-ic">🔍</span><input type="text" class="si" id="logSearch" placeholder="기록 검색..." oninput="filterLogs()"></div>
+  <div id="logList"><div class="emp"><div class="emp-i">📭</div><p>기록 없음</p></div></div>
+</div>
+
+<!-- ══════ SETTINGS ══════ -->
+<div class="pn" id="p-cfg">
+  <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic ig">🔗</span>API 연결</div></div>
+  <div class="st-r"><div class="st-n">Claude API</div><span class="cn" id="cnClaude">미연결</span></div>
+  <div class="st-r"><div class="st-n">Gemini API</div><span class="cn" id="cnGemini">미연결</span></div>
+  <div class="st-r"><div class="st-n">리턴제로 STT</div><span class="cn" id="cnRtzr">미연결</span></div>
+  <div class="st-r"><div class="st-n">Telegram</div><span class="cn" id="cnTele">미연결</span></div>
+  <div class="st-r"><div class="st-n">Google Drive</div><span class="cn" id="cnDrive">미연결</span></div>
+  </div>
+  <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic ig">📁</span>Google Drive 연동</div></div>
+  <div style="font-size:11px;color:var(--t2);margin-bottom:10px;line-height:1.6">파일 업로드 시 유형별 자동 분류하여 Google Drive에 저장합니다.<br>
+  <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--a1)">Google Cloud Console</a>에서 OAuth 클라이언트 ID를 생성하세요.<br>
+  ⚠️ Drive API 활성화 필수 | 앱 유형: 웹 | 승인된 JS 원본: 현재 URL</div>
+  <div class="fg"><label class="fl">Google OAuth Client ID</label><input type="text" class="fi" id="cfgDriveClientId" placeholder="xxx.apps.googleusercontent.com"></div>
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <button class="bp" onclick="driveAuth()" style="flex:1;font-size:12px;padding:10px">🔗 Google Drive 연결</button>
+    <button class="bs" onclick="driveCreateFolders()" style="flex:1">📂 폴더 자동생성</button>
+  </div>
+  <div class="tgl-row"><span class="tgl-name">업로드 시 자동 Drive 저장</span><label class="tgl"><input type="checkbox" id="cfgDriveAuto" checked onchange="CONFIG.drive.auto=this.checked;saveConfig()"><span class="tgl-s"></span></label></div>
+  <div style="margin-top:8px;font-size:10px;color:var(--t3)" id="driveFolderStatus">📂 폴더 미생성</div>
+  </div>
+  <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic io">🔑</span>API 키</div></div>
+  <div class="fg"><label class="fl">Claude API Key</label><input type="password" class="fi" id="cfgClaude" placeholder="sk-ant-..."></div>
+  <div class="fg"><label class="fl">Gemini API Key</label><input type="password" class="fi" id="cfgGemini" placeholder="AIza..."></div>
+  <div class="fg"><label class="fl">리턴제로 Client ID</label><input type="text" class="fi" id="cfgRtzrId"></div>
+  <div class="fg"><label class="fl">리턴제로 Client Secret</label><input type="password" class="fi" id="cfgRtzrSecret"></div>
+  <div class="fg"><label class="fl">Telegram Bot Token</label><input type="password" class="fi" id="cfgTeleToken"></div>
+  <div class="fg"><label class="fl">Telegram Chat ID</label><input type="text" class="fi" id="cfgTeleChatId"></div>
+  <button class="bp" onclick="saveConfig()">💾 설정 저장</button></div>
+  <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic ib">💾</span>데이터</div></div>
+  <div style="display:flex;gap:8px"><button class="bs" onclick="exportData()" style="flex:1">📥 백업</button><button class="bs" onclick="document.getElementById('importFile').click()" style="flex:1">📤 복원</button></div>
+  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+  <div style="margin-top:10px;font-size:10px;color:var(--t3)">💾 저장: <span id="dataCount">0</span>건 / 300건 | localStorage</div></div>
+</div>
+
+</div><!-- /mn -->
+
+<div class="tst" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   LSR VIP DATA HUB v6 — Application Logic (통합스캔)
+   ═══════════════════════════════════════ */
+
+// ── 전역 상태 ──
+const CONFIG = { claude: { key: '' }, gemini: { key: '' }, rtzr: { id: '', secret: '' }, tele: { token: '', chatId: '' }, drive: { clientId: '', token: '', auto: true, rootFolderId: '', folders: {} }, persons: ['이성록형님'] };
+let selectedType = '', selectedUrgency = 'medium', selectedFile = null;
+let records = [], agreements = [], pins = [], risks = [];
+let peopleData = [{ name: '이성록형님', title: '핵심 사업 파트너', company: '', route: '직접', date: '2026-01-01', url: '', contact: '', memo: '' }];
+let mediaRecorder = null, audioChunks = [], recInterval = null, recSeconds = 0, isRecording = false, currentFileFilter = '전체';
+
+// ── 초기화 ──
+window.addEventListener('DOMContentLoaded', () => {
+  loadConfig();
+  loadRecords();
+  setDefaultDateTime();
+  renderAll();
+});
+
+// ── 네비게이션 ──
+document.querySelectorAll('.nv').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.nv').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('.pn').forEach(x => x.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('p-' + btn.dataset.p).classList.add('on');
+}));
+function goTab(tab) {
+  document.querySelectorAll('.nv').forEach(x => { x.classList.remove('on'); if (x.dataset.p === tab) x.classList.add('on'); });
+  document.querySelectorAll('.pn').forEach(x => x.classList.remove('on'));
+  document.getElementById('p-' + tab).classList.add('on');
+}
+
+// ── 다크모드 ──
+let isDark = localStorage.getItem('lsr_dk') === '1';
+if (isDark) document.body.classList.add('dark');
+function toggleDark() { isDark = !isDark; document.body.classList.toggle('dark'); localStorage.setItem('lsr_dk', isDark ? '1' : '0'); document.getElementById('dmBtn').textContent = isDark ? '☀️' : '🌙'; }
+
+// ═══════════════════════════════════════
+// v6 통합 스캔 업로드 엔진
+// ═══════════════════════════════════════
+let scannedText = ''; // 스캔된 텍스트 저장
+const fileInput = document.getElementById('fileInput');
+fileInput.addEventListener('change', e => { if (e.target.files.length > 0) handleFilesSelect(Array.from(e.target.files)); });
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dg'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dg'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dg'); if (e.dataTransfer.files.length > 0) handleFilesSelect(Array.from(e.dataTransfer.files)); });
+document.getElementById('fileClear').addEventListener('click', () => { selectedFile = null; scannedText = ''; fileInput.value = ''; document.getElementById('fileChip').classList.remove('sh'); document.getElementById('fileMeta').classList.remove('sh'); document.getElementById('scanPreview').classList.remove('sh'); document.getElementById('scanResult').classList.remove('sh'); document.getElementById('multiFiles').innerHTML = ''; });
+
+// 복수 파일 처리
+async function handleFilesSelect(files) {
+  const container = document.getElementById('multiFiles');
+  container.innerHTML = '';
+  // 첫 번째 파일을 메인으로
+  selectedFile = files[0];
+  // 파일 칩 표시
+  files.forEach((f, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'mf-chip';
+    chip.id = 'mfc_' + i;
+    chip.innerHTML = `<span>${getFileIcon(f.name)}</span><span class="mf-name">${esc(f.name)}</span><span style="font-size:9px;color:var(--t3)">${formatSize(f.size)}</span>`;
+    container.appendChild(chip);
+  });
+  // 메인 파일 정보 표시
+  const file = files[0];
+  document.getElementById('fileName').textContent = file.name + ' (' + formatSize(file.size) + ')';
+  document.getElementById('fileChip').classList.add('sh');
+  const fd = new Date(file.lastModified);
+  document.getElementById('inputDate').value = fd.toISOString().split('T')[0];
+  document.getElementById('inputTime').value = fd.toTimeString().slice(0, 5);
+  document.getElementById('fileMeta').innerHTML = `📁 <strong>${esc(file.name)}</strong><br>📅 파일날짜: <strong>${fd.toLocaleDateString('ko-KR')}</strong> ${fd.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}<br>💾 크기: <strong>${formatSize(file.size)}</strong> | 유형: <strong>${file.type||'unknown'}</strong>`;
+  document.getElementById('fileMeta').classList.add('sh');
+  // 자동 스캔 시작
+  await runUnifiedScan(files);
+}
+
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  if (['xlsx','xls','csv'].includes(ext)) return '📊';
+  if (ext === 'pdf') return '📕';
+  if (['txt','log','md'].includes(ext)) return '📝';
+  if (['doc','docx'].includes(ext)) return '📄';
+  if (['hwp'].includes(ext)) return '📜';
+  if (['m4a','mp3','wav','ogg','flac','aac','webm'].includes(ext)) return '🎙️';
+  if (['jpg','jpeg','png','gif','bmp','webp'].includes(ext)) return '🖼️';
+  return '📦';
+}
+
+// ── 통합 스캔 메인 ──
+async function runUnifiedScan(files) {
+  const progEl = document.getElementById('scanProg');
+  const fillEl = document.getElementById('scanFill');
+  const lblEl = document.getElementById('scanLabel');
+  const previewEl = document.getElementById('scanPreview');
+  progEl.classList.add('sh');
+  fillEl.style.width = '5%';
+  lblEl.textContent = '🔍 파일 분석중...';
+  let allText = '';
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    const chip = document.getElementById('mfc_' + i);
+    if (chip) chip.className = 'mf-chip scanning';
+    fillEl.style.width = (10 + (i / files.length) * 70) + '%';
+    lblEl.textContent = `📄 스캔중: ${f.name} (${i+1}/${files.length})`;
+    try {
+      const text = await scanSingleFile(f);
+      if (text) allText += `\n━━ ${f.name} ━━\n${text}\n`;
+      if (chip) chip.className = 'mf-chip done';
+    } catch (e) {
+      console.warn('스캔 실패:', f.name, e);
+      if (chip) { chip.className = 'mf-chip'; chip.style.borderColor = 'var(--r1)'; }
+    }
+  }
+  scannedText = allText.trim();
+  fillEl.style.width = '85%';
+  lblEl.textContent = '🤖 자동 분류중...';
+  // 미리보기 표시
+  if (scannedText) {
+    previewEl.textContent = scannedText.substring(0, 1500) + (scannedText.length > 1500 ? '\n... (더보기 생략)' : '');
+    previewEl.classList.add('sh');
+  }
+  // 자동 분류 실행
+  if (scannedText.length > 10) {
+    const classification = autoClassifyContent(scannedText, files[0].name);
+    autoFillFields(classification);
+    showClassificationResult(classification);
+  }
+  fillEl.style.width = '100%';
+  lblEl.textContent = '✅ 스캔 완료 — ' + files.length + '개 파일, ' + scannedText.length + '자 추출';
+  showToast('🔬 통합 스캔 완료!');
+}
+
+// ── 파일 유형별 스캔 ──
+async function scanSingleFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  // 텍스트 파일
+  if (['txt','log','md','csv'].includes(ext)) return await scanTextFile(file);
+  // 엑셀
+  if (['xlsx','xls'].includes(ext)) return await scanExcelFile(file);
+  // PDF
+  if (ext === 'pdf') return await scanPdfFile(file);
+  // 오디오 — 텍스트 추출 불가, 메타만
+  if (['m4a','mp3','wav','ogg','flac','aac','webm'].includes(ext)) return `[음성파일] ${file.name} (${formatSize(file.size)}) — STT 변환은 저장 시 자동 실행`;
+  // 이미지 — 메타만
+  if (['jpg','jpeg','png','gif','bmp','webp'].includes(ext)) return `[이미지] ${file.name} (${formatSize(file.size)})`;
+  return `[지원 미확인] ${file.name} (${formatSize(file.size)})`;
+}
+
+// 텍스트 파일 읽기
+function scanTextFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = () => reject(new Error('텍스트 읽기 실패'));
+    // 한국어 인코딩 지원
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+
+// 엑셀 파일 읽기 (SheetJS)
+function scanExcelFile(file) {
+  return new Promise((resolve, reject) => {
+    if (typeof XLSX === 'undefined') { resolve('[엑셀 라이브러리 로딩 실패]'); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, { type: 'array', codepage: 949 });
+        let result = '';
+        wb.SheetNames.forEach(name => {
+          const ws = wb.Sheets[name];
+          const csv = XLSX.utils.sheet_to_csv(ws, { FS: '\t' });
+          result += `[시트: ${name}]\n${csv}\n\n`;
+        });
+        resolve(result.trim());
+      } catch (err) { reject(err); }
+    };
+    reader.onerror = () => reject(new Error('엑셀 읽기 실패'));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// PDF 파일 읽기 (PDF.js)
+async function scanPdfFile(file) {
+  if (typeof pdfjsLib === 'undefined') return '[PDF 라이브러리 로딩 실패]';
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let text = '';
+    const maxPages = Math.min(pdf.numPages, 30);
+    for (let i = 1; i <= maxPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(item => item.str).join(' ');
+      if (pageText.trim()) text += `[페이지 ${i}]\n${pageText}\n\n`;
+    }
+    if (pdf.numPages > 30) text += `\n... (총 ${pdf.numPages}페이지 중 30페이지까지 스캔)`;
+    return text.trim() || '[PDF 텍스트 없음 — 이미지 기반 PDF일 수 있음]';
+  } catch (e) { return '[PDF 읽기 오류: ' + e.message + ']'; }
+}
+
+// ═══════════════════════════════════════
+// 자동 분류 엔진
+// ═══════════════════════════════════════
+function autoClassifyContent(text, fileName) {
+  const lower = text.toLowerCase();
+  const result = { type: '', person: '', urgency: 'medium', memo: '', confidence: 0 };
+  // 파일명 기반 힌트
+  const fnLower = fileName.toLowerCase();
+  // ── 유형 분류 (점수제) ──
+  const scores = { '통화녹취': 0, '카톡대화': 0, '미팅메모': 0, '계약서': 0, '제안서': 0, '기타': 0 };
+  // 통화녹취 패턴
+  if (/화자|speaker|통화|전화|녹취|녹음/.test(lower)) scores['통화녹취'] += 5;
+  if (/네[,.]?\s*(알겠습니다|감사합니다|맞습니다)/.test(lower)) scores['통화녹취'] += 3;
+  if (/여보세요|말씀하세요/.test(lower)) scores['통화녹취'] += 4;
+  if (/통화|녹취|call|recording/.test(fnLower)) scores['통화녹취'] += 4;
+  // 카톡대화 패턴
+  if (/\[오전\]|\[오후\]|\[.*\d{1,2}:\d{2}\]/.test(text)) scores['카톡대화'] += 6;
+  if (/님이\s*(나갔|들어왔|입장)/.test(lower)) scores['카톡대화'] += 5;
+  if (/카카오|카톡|kakao|톡방/.test(lower)) scores['카톡대화'] += 4;
+  if (/카톡|kakao|chat/.test(fnLower)) scores['카톡대화'] += 4;
+  if (/사진|이모티콘|삭제된\s*메시지/.test(lower)) scores['카톡대화'] += 3;
+  // 미팅메모 패턴
+  if (/미팅|회의|meeting|안건|참석자|회의록/.test(lower)) scores['미팅메모'] += 5;
+  if (/결론|논의|합의|결정사항|to.?do|follow.?up/.test(lower)) scores['미팅메모'] += 3;
+  if (/미팅|회의|meeting|memo/.test(fnLower)) scores['미팅메모'] += 4;
+  // 계약서 패턴
+  if (/계약|contract|조항|제\d+조|갑|을|서명|날인/.test(lower)) scores['계약서'] += 5;
+  if (/계약금|위약금|효력|해지|해제/.test(lower)) scores['계약서'] += 4;
+  if (/계약|contract|mou|agreement/.test(fnLower)) scores['계약서'] += 4;
+  // 제안서 패턴
+  if (/제안|proposal|사업계획|투자|수익모델|roi/.test(lower)) scores['제안서'] += 5;
+  if (/목표|비전|전략|시장분석|마케팅/.test(lower)) scores['제안서'] += 3;
+  if (/제안|proposal|plan/.test(fnLower)) scores['제안서'] += 4;
+  // 엑셀 특성
+  if (/\.xlsx?$|\.csv$/i.test(fileName)) {
+    if (/매출|매입|정산|금액|합계|소계/.test(lower)) scores['계약서'] += 2;
+    if (/이름|연락처|주소|전화/.test(lower)) scores['기타'] += 2;
+  }
+  // 최고 점수 유형 선택
+  let maxScore = 0, maxType = '기타';
+  for (const [type, score] of Object.entries(scores)) {
+    if (score > maxScore) { maxScore = score; maxType = type; }
+  }
+  result.type = maxType;
+  result.confidence = Math.min(100, Math.round((maxScore / 10) * 100));
+  // ── 인물 분류 ──
+  const knownPersons = [...CONFIG.persons, ...peopleData.map(p => p.name)];
+  for (const person of knownPersons) {
+    if (text.includes(person) || lower.includes(person.toLowerCase())) {
+      result.person = person; break;
+    }
+  }
+  if (!result.person) {
+    if (/이성록|성록\s*형/.test(text)) result.person = '이성록형님';
+  }
+  // ── 긴급도 분류 ──
+  if (/긴급|urgent|asap|즉시|당장|빨리|시급/.test(lower)) result.urgency = 'high';
+  else if (/중요|important|핵심|반드시/.test(lower)) result.urgency = 'medium';
+  else result.urgency = 'low';
+  // ── 메모 자동 생성 (첫 3문장 요약) ──
+  const sentences = text.replace(/\[.*?\]/g, '').split(/[.!?\n]+/).filter(s => s.trim().length > 5).slice(0, 5);
+  result.memo = sentences.map(s => s.trim().substring(0, 80)).join('\n');
+  return result;
+}
+
+// ── 자동 기입 ──
+function autoFillFields(cls) {
+  // 유형 선택
+  if (cls.type) {
+    document.querySelectorAll('#typeGrid .tb').forEach(b => {
+      b.classList.remove('on');
+      if (b.dataset.t === cls.type) { b.classList.add('on'); selectedType = cls.type; }
+    });
+    addAutoTag('typeGrid', cls.type);
+  }
+  // 인물 선택
+  if (cls.person) {
+    const sel = document.getElementById('selPerson');
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === cls.person) { sel.selectedIndex = i; break; }
+    }
+    addAutoTag('selPerson', cls.person);
+  }
+  // 긴급도 선택
+  document.querySelectorAll('#urgGrid .ub').forEach(b => {
+    b.classList.remove('on');
+    if (b.dataset.u === cls.urgency) { b.classList.add('on'); selectedUrgency = cls.urgency; }
+  });
+  // 메모 자동 기입
+  if (cls.memo) {
+    const memoEl = document.getElementById('inputMemo');
+    if (!memoEl.value.trim()) {
+      memoEl.value = '[자동스캔]\n' + cls.memo;
+      addAutoTag('inputMemo', '자동 추출');
+    }
+  }
+}
+
+function addAutoTag(parentId, label) {
+  const parent = document.getElementById(parentId)?.parentElement;
+  if (!parent) return;
+  const existing = parent.querySelector('.auto-tag');
+  if (existing) existing.remove();
+  const tag = document.createElement('span');
+  tag.className = 'auto-tag';
+  tag.innerHTML = '🤖 ' + esc(label);
+  parent.appendChild(tag);
+}
+
+function showClassificationResult(cls) {
+  const el = document.getElementById('scanResult');
+  const body = document.getElementById('scanResultBody');
+  const urgEmoji = { high: '🔴', medium: '🟡', low: '🟢' }[cls.urgency];
+  body.innerHTML = `
+    <div class="scan-result-row"><span class="sr-label">📂 유형</span><span class="sr-value"><strong>${cls.type}</strong> (확신도 ${cls.confidence}%)</span></div>
+    <div class="scan-result-row"><span class="sr-label">👤 인물</span><span class="sr-value">${cls.person || '(자동 감지 실패 — 직접 선택)'}</span></div>
+    <div class="scan-result-row"><span class="sr-label">🚨 긴급</span><span class="sr-value">${urgEmoji} ${{high:'긴급',medium:'보통',low:'일반'}[cls.urgency]}</span></div>
+    <div class="scan-result-row"><span class="sr-label">📝 텍스트</span><span class="sr-value">${scannedText.length.toLocaleString()}자 추출</span></div>
+  `;
+  el.classList.add('sh');
+}
+
+// ── 유형/긴급도 선택 ──
+document.querySelectorAll('#typeGrid .tb').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('#typeGrid .tb').forEach(x => x.classList.remove('on')); b.classList.add('on'); selectedType = b.dataset.t; }));
+document.querySelectorAll('#urgGrid .ub').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('#urgGrid .ub').forEach(x => x.classList.remove('on')); b.classList.add('on'); selectedUrgency = b.dataset.u; }));
+function setDefaultDateTime() { const n = new Date(); document.getElementById('inputDate').value = n.toISOString().split('T')[0]; document.getElementById('inputTime').value = n.toTimeString().slice(0, 5); }
+function togglePersonField(el) { const fg = document.getElementById('fg_' + el.dataset.pf); if (fg) fg.style.display = el.checked ? '' : 'none'; }
+
+// ── 녹음 ──
+async function toggleRecord() {
+  if (!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+        selectedFile = new File([blob], `녹음_${new Date().toISOString().slice(0, 19).replace(/[:-]/g, '')}.webm`, { type: 'audio/webm' });
+        document.getElementById('fileName').textContent = selectedFile.name + ' (' + formatSize(selectedFile.size) + ')';
+        document.getElementById('fileChip').classList.add('sh');
+        stream.getTracks().forEach(t => t.stop());
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      recSeconds = 0;
+      document.getElementById('recBtn').className = 'rb rb-e';
+      document.getElementById('recBtn').textContent = '■';
+      document.getElementById('recLabel').textContent = '녹음중...';
+      document.getElementById('recWave').classList.add('sh');
+      recInterval = setInterval(() => { recSeconds++; document.getElementById('recTime').textContent = String(Math.floor(recSeconds / 60)).padStart(2, '0') + ':' + String(recSeconds % 60).padStart(2, '0'); }, 1000);
+    } catch (e) { showToast('⚠️ 마이크 권한 필요'); }
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    clearInterval(recInterval);
+    document.getElementById('recBtn').className = 'rb rb-s';
+    document.getElementById('recBtn').textContent = '●';
+    document.getElementById('recLabel').textContent = '녹음 완료';
+    document.getElementById('recWave').classList.remove('sh');
+    showToast('✅ 녹음 완료');
+  }
+}
+
+// ═══════════════════════════════════════
+// API 호출 함수들
+// ═══════════════════════════════════════
+
+async function callClaude(prompt, systemPrompt) {
+  if (!CONFIG.claude.key) return '[Claude 미설정] 설정 탭에서 API키를 입력하세요.';
+  try {
+    const body = { model: 'claude-sonnet-4-20250514', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] };
+    if (systemPrompt) body.system = systemPrompt;
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': CONFIG.claude.key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return (await r.json()).content[0].text;
+  } catch (e) { return '❌ Claude 오류: ' + e.message; }
+}
+
+async function callGemini(prompt) {
+  if (!CONFIG.gemini.key) return '';
+  try {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${CONFIG.gemini.key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    if (!r.ok) return '';
+    const d = await r.json();
+    return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  } catch (e) { return ''; }
+}
+
+async function callSTT(file) {
+  const authRes = await fetch('https://openapi.vito.ai/v1/authenticate', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `client_id=${CONFIG.rtzr.id}&client_secret=${CONFIG.rtzr.secret}` });
+  if (!authRes.ok) throw new Error('RTZR 인증 실패');
+  const jwt = (await authRes.json()).access_token;
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('config', JSON.stringify({ use_diarization: true, diarization: { spk_count: 2 } }));
+  const submitRes = await fetch('https://openapi.vito.ai/v1/transcribe', { method: 'POST', headers: { Authorization: 'Bearer ' + jwt }, body: fd });
+  if (!submitRes.ok) throw new Error('전사 요청 실패');
+  const taskId = (await submitRes.json()).id;
+  const progEl = document.getElementById('sttProg');
+  const fillEl = document.getElementById('sttFill');
+  const lblEl = document.getElementById('sttLabel');
+  progEl.classList.add('sh');
+  for (let i = 0; i < 60; i++) {
+    await sleep(3000);
+    fillEl.style.width = Math.min(95, (i / 60) * 100) + '%';
+    lblEl.textContent = `폴링 ${i + 1}/60 (${(i * 3)}초 경과)`;
+    const pollRes = await fetch(`https://openapi.vito.ai/v1/transcribe/${taskId}`, { headers: { Authorization: 'Bearer ' + jwt } });
+    const pollData = await pollRes.json();
+    if (pollData.status === 'completed') {
+      fillEl.style.width = '100%';
+      lblEl.textContent = '✅ 변환 완료';
+      let text = '';
+      if (pollData.results?.utterances) pollData.results.utterances.forEach(u => { text += `[화자${(u.spk || 0) + 1}] ${u.msg}\n`; });
+      return text || '(변환 결과 없음)';
+    }
+    if (pollData.status === 'failed') throw new Error('전사 실패');
+  }
+  throw new Error('타임아웃 (3분)');
+}
+
+async function sendTelegram(message) {
+  if (!CONFIG.tele.token || !CONFIG.tele.chatId) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${CONFIG.tele.token}/sendMessage`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: CONFIG.tele.chatId, text: message })
+    });
+  } catch (e) { /* 실패 시 무시 */ }
+}
+
+// ═══════════════════════════════════════
+// Google Drive 연동
+// ═══════════════════════════════════════
+
+// 유형별 폴더 매핑
+const DRIVE_FOLDER_MAP = {
+  '통화녹취': ['01_커뮤니케이션_로그', '통화녹취_원본'],
+  '카톡대화': ['01_커뮤니케이션_로그', '카톡_대화내역'],
+  '미팅메모': ['02_미팅_핵심기록'],
+  '계약서': ['04_사업문서', '계약서_MOU'],
+  '제안서': ['04_사업문서', '제안서'],
+  '기타': ['06_전략메모']
+};
+
+// Drive 전체 폴더 구조
+const DRIVE_FOLDER_TREE = {
+  'VIP_이성록형님': {
+    '01_커뮤니케이션_로그': { '카톡_대화내역': {}, '카톡_공유파일': {}, '통화녹취_원본': {}, '통화녹취_텍스트변환': {}, '문자_SMS': {} },
+    '02_미팅_핵심기록': {},
+    '03_합의사항_추적': {},
+    '04_사업문서': { '계약서_MOU': {}, '제안서': {}, '재무_정산': {} },
+    '05_인물_네트워크': {},
+    '06_전략메모': {}
+  }
+};
+
+let driveTokenClient = null;
+
+// Google OAuth2 인증
+function driveAuth() {
+  const clientId = document.getElementById('cfgDriveClientId').value.trim();
+  if (!clientId) { showToast('⚠️ OAuth Client ID를 입력하세요'); return; }
+  CONFIG.drive.clientId = clientId;
+  saveConfig();
+
+  if (typeof google === 'undefined' || !google.accounts) {
+    showToast('⚠️ Google 인증 라이브러리 로딩중... 잠시 후 다시 시도');
+    return;
+  }
+
+  driveTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: clientId,
+    scope: 'https://www.googleapis.com/auth/drive.file',
+    callback: (resp) => {
+      if (resp.error) { showToast('❌ 인증 실패: ' + resp.error); return; }
+      CONFIG.drive.token = resp.access_token;
+      saveConfig();
+      updateDriveStatus();
+      showToast('✅ Google Drive 연결 완료!');
+      sendTelegram('🔗 Google Drive 연결됨');
+    }
+  });
+  driveTokenClient.requestAccessToken();
+}
+
+// Drive API 호출 헬퍼
+async function driveAPI(path, options = {}) {
+  if (!CONFIG.drive.token) throw new Error('Drive 미인증');
+  const base = 'https://www.googleapis.com';
+  const url = path.startsWith('http') ? path : base + path;
+  const r = await fetch(url, {
+    ...options,
+    headers: { 'Authorization': 'Bearer ' + CONFIG.drive.token, ...(options.headers || {}) }
+  });
+  if (r.status === 401) { CONFIG.drive.token = ''; saveConfig(); updateDriveStatus(); throw new Error('토큰 만료 - 재연결 필요'); }
+  if (!r.ok) throw new Error('Drive API 오류 ' + r.status);
+  return r.json();
+}
+
+// 폴더 찾기 또는 생성
+async function driveFindOrCreateFolder(name, parentId) {
+  // 기존 폴더 검색
+  const q = `name='${name}' and '${parentId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+  const result = await driveAPI(`/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)`);
+  if (result.files && result.files.length > 0) return result.files[0].id;
+
+  // 새 폴더 생성
+  const meta = { name, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] };
+  const created = await driveAPI('/drive/v3/files', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(meta)
+  });
+  return created.id;
+}
+
+// 전체 폴더 구조 자동 생성
+async function driveCreateFolders() {
+  if (!CONFIG.drive.token) { showToast('⚠️ 먼저 Google Drive를 연결하세요'); return; }
+  showToast('📂 폴더 생성중...');
+
+  try {
+    // 루트 폴더 (내 드라이브)
+    const rootId = 'root';
+
+    // 재귀적으로 폴더 트리 생성
+    async function createTree(tree, parentId, pathMap, pathPrefix) {
+      for (const [name, children] of Object.entries(tree)) {
+        const folderId = await driveFindOrCreateFolder(name, parentId);
+        const fullPath = pathPrefix ? pathPrefix + '/' + name : name;
+        pathMap[fullPath] = folderId;
+        if (Object.keys(children).length > 0) {
+          await createTree(children, folderId, pathMap, fullPath);
+        }
+      }
+    }
+
+    const pathMap = {};
+    await createTree(DRIVE_FOLDER_TREE, rootId, pathMap, '');
+
+    // 폴더 ID들 저장
+    CONFIG.drive.rootFolderId = pathMap['VIP_이성록형님'] || '';
+    CONFIG.drive.folders = {};
+    for (const [type, pathParts] of Object.entries(DRIVE_FOLDER_MAP)) {
+      const fullPath = 'VIP_이성록형님/' + pathParts.join('/');
+      CONFIG.drive.folders[type] = pathMap[fullPath] || '';
+    }
+    saveConfig();
+    updateDriveStatus();
+    showToast('✅ 폴더 구조 생성 완료! (' + Object.keys(pathMap).length + '개)');
+    sendTelegram('📂 Google Drive 폴더 구조 생성 완료\n' + Object.keys(pathMap).join('\n'));
+  } catch (e) {
+    showToast('❌ 폴더 생성 실패: ' + e.message);
+  }
+}
+
+// 파일 업로드 (자동 분류)
+async function driveUploadFile(file, dataType, person, suggestedName) {
+  if (!CONFIG.drive.token || !CONFIG.drive.auto) return null;
+
+  // 유형별 폴더 ID 결정
+  let folderId = CONFIG.drive.folders[dataType];
+  if (!folderId) {
+    // 폴더가 없으면 루트에 업로드
+    folderId = CONFIG.drive.rootFolderId || 'root';
+  }
+
+  // 파일명: AI 제안명 또는 날짜_유형_인물
+  const now = new Date();
+  const dateStr = now.toISOString().slice(2, 10).replace(/-/g, '') + '_' + now.toTimeString().slice(0, 5).replace(':', '');
+  const fileName = suggestedName || `${dateStr}_${dataType}_${person}_${file.name}`;
+
+  // Multipart 업로드 (5MB 이하)
+  const metadata = { name: fileName, parents: [folderId] };
+  const form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+  form.append('file', file);
+
+  const r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + CONFIG.drive.token },
+    body: form
+  });
+
+  if (r.status === 401) { CONFIG.drive.token = ''; saveConfig(); updateDriveStatus(); throw new Error('토큰 만료'); }
+  if (!r.ok) throw new Error('업로드 실패 ' + r.status);
+  return r.json();
+}
+
+// AI 분석 결과를 텍스트 파일로 Drive에 저장
+async function driveSaveAnalysis(analysis, dataType, person, date) {
+  if (!CONFIG.drive.token || !CONFIG.drive.auto) return null;
+
+  const folderId = CONFIG.drive.folders[dataType] || CONFIG.drive.rootFolderId || 'root';
+  const fileName = `${date.replace(/-/g, '')}_${dataType}_${person}_AI분석.txt`;
+  const content = `═══ LSR VIP DATA HUB — AI 분석 ═══\n날짜: ${date}\n유형: ${dataType}\n인물: ${person}\n\n${analysis}`;
+  const blob = new Blob([content], { type: 'text/plain' });
+
+  const metadata = { name: fileName, parents: [folderId] };
+  const form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+  form.append('file', blob);
+
+  const r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + CONFIG.drive.token },
+    body: form
+  });
+  if (!r.ok) return null;
+  return r.json();
+}
+
+// Drive 상태 업데이트
+function updateDriveStatus() {
+  const el = document.getElementById('cnDrive');
+  const hasFolders = CONFIG.drive.rootFolderId && Object.keys(CONFIG.drive.folders).length > 0;
+  if (CONFIG.drive.token) {
+    el.className = 'cn cn-y';
+    el.textContent = '연결됨';
+  } else {
+    el.className = 'cn cn-n';
+    el.textContent = '미연결';
+  }
+  const fsEl = document.getElementById('driveFolderStatus');
+  if (fsEl) {
+    fsEl.textContent = hasFolders
+      ? '✅ 폴더 구조 생성됨 (' + Object.keys(CONFIG.drive.folders).length + '개 유형 매핑)'
+      : '📂 폴더 미생성 — "폴더 자동생성" 클릭';
+  }
+  const autoEl = document.getElementById('cfgDriveAuto');
+  if (autoEl) autoEl.checked = CONFIG.drive.auto !== false;
+}
+
+// ═══════════════════════════════════════
+// 메인 처리 프로세스
+// ═══════════════════════════════════════
+
+async function processData() {
+  const person = document.getElementById('selPerson').value;
+  const date = document.getElementById('inputDate').value;
+  const time = document.getElementById('inputTime').value;
+  const memo = document.getElementById('inputMemo').value;
+  const pinText = document.getElementById('inputPin').value;
+  const deadline = document.getElementById('inputDeadline').value;
+  if (!person) { showToast('⚠️ 인물을 선택하세요'); return; }
+  if (!selectedType) { showToast('⚠️ 데이터 유형을 선택하세요'); return; }
+  if (!memo) { showToast('⚠️ 핵심 메모를 입력하세요'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = '⏳ 처리중...';
+  document.getElementById('processSteps').classList.add('sh');
+  document.getElementById('resultBox').classList.remove('sh');
+
+  const isAudio = selectedFile && /\.(m4a|mp3|wav|ogg|flac|aac|wma|webm)$/i.test(selectedFile.name);
+  let sttText = '', claudeResult = '', geminiResult = '';
+
+  try {
+    // Step 1: STT
+    if (isAudio && CONFIG.rtzr.id && CONFIG.rtzr.secret) {
+      setStep('step1', 'rn');
+      try { sttText = await callSTT(selectedFile); setStep('step1', 'dn'); } catch (e) { setStep('step1', 'er'); sttText = '[STT 실패: ' + e.message + ']'; }
+    } else { setStep('step1', 'dn'); sttText = selectedFile ? '(파일: ' + selectedFile.name + ')' : ''; }
+
+    // Step 2+3: Claude + Gemini 병렬 호출
+    setStep('step2', 'rn'); setStep('step3', 'rn');
+    const scanCtx = scannedText ? '\n\n[통합 스캔 추출 텍스트]:\n' + scannedText.substring(0, 6000) : '';
+    const claudePrompt = `사업 인텔리전스 분석관. 모든 데이터를 분석하여 핵심을 추출하세요.\n인물: ${person} | 유형: ${selectedType} | 날짜: ${date} ${time} | 긴급도: ${selectedUrgency}${deadline ? ' | 기한: ' + deadline : ''}\n메모: ${memo}\n${sttText && !sttText.startsWith('(') ? 'STT 텍스트:\n' + sttText.substring(0, 4000) : ''}${scanCtx}\n\n출력(한국어):\n1.【요약】3줄 핵심\n2.【합의사항】(있으면, 각 항목에 기한 포함)\n3.【액션아이템】\n4.【위험감지】\n5.【파일명 제안】YYMMDD_HHmm_유형_인물_키워드`;
+    const geminiPrompt = `보조 AI 분석. ${person}, ${selectedType}, ${date}\n${memo}\n관련 보충 정보, 시장 동향, 주의사항을 2-3줄로. 한국어.`;
+
+    const [claudeRes, geminiRes] = await Promise.allSettled([callClaude(claudePrompt), callGemini(geminiPrompt)]);
+    claudeResult = claudeRes.status === 'fulfilled' ? claudeRes.value : '❌ Claude 실패';
+    geminiResult = geminiRes.status === 'fulfilled' ? geminiRes.value : '';
+    setStep('step2', claudeRes.status === 'fulfilled' ? 'dn' : 'er');
+    setStep('step3', 'dn');
+
+    // Step 4: 저장 & 알림
+    setStep('step4', 'rn');
+    const urgEmoji = { high: '🔴', medium: '🟡', low: '🟢' }[selectedUrgency];
+    await sendTelegram(`${urgEmoji} VIP 처리 완료\n📂 ${selectedType} | 👤 ${person}\n📅 ${date} ${time}\n📝 ${memo.substring(0, 300)}\n🧠 ${claudeResult.substring(0, 500)}`);
+    setStep('step4', 'dn');
+
+    // Step 5: Google Drive 자동 업로드
+    if (CONFIG.drive.token && CONFIG.drive.auto) {
+      setStep('step5', 'rn');
+      try {
+        let driveResults = [];
+        // 원본 파일 업로드
+        if (selectedFile) {
+          const fileResult = await driveUploadFile(selectedFile, selectedType, person);
+          if (fileResult) driveResults.push('📄 ' + fileResult.name);
+        }
+        // AI 분석 결과 텍스트 파일 업로드
+        const fullAnalysis = claudeResult + (geminiResult ? '\n\n━━ Gemini 보충 ━━\n' + geminiResult : '');
+        const analysisResult = await driveSaveAnalysis(fullAnalysis, selectedType, person, date);
+        if (analysisResult) driveResults.push('🧠 ' + analysisResult.name);
+        setStep('step5', 'dn');
+        if (driveResults.length > 0) {
+          sendTelegram('📤 Drive 업로드 완료\n' + driveResults.join('\n'));
+        }
+      } catch (e) {
+        setStep('step5', 'er');
+        console.warn('Drive 업로드 실패:', e.message);
+      }
+    } else {
+      setStep('step5', 'dn');
+    }
+
+    // 레코드 저장
+    records.unshift({ id: Date.now(), date, time, type: selectedType, person, memo, urgency: selectedUrgency, deadline: deadline || '', analysis: claudeResult, gemini: geminiResult, stt: sttText, fileName: selectedFile?.name || '', ts: Date.now() });
+    if (records.length > 300) records.length = 300;
+    saveRecords();
+
+    // 합의사항/위험 자동 추출
+    extractAgreements(claudeResult, date, person, deadline);
+    extractRisks(claudeResult);
+    if (pinText) { pins.unshift({ text: pinText, date, id: Date.now() }); localStorage.setItem('lsr_pins', JSON.stringify(pins)); }
+
+    // 결과 표시
+    document.getElementById('resultText').textContent = claudeResult + (geminiResult ? '\n\n━━ Gemini 보충 ━━\n' + geminiResult : '');
+    document.getElementById('resultBox').classList.add('sh');
+    renderAll();
+    showToast('✅ 완료');
+  } catch (e) { showToast('❌ ' + e.message); }
+  btn.disabled = false; btn.textContent = '⚡ 저장 & AI 분석 실행';
+}
+
+// ── AI 질문 ──
+async function aiAsk() {
+  const q = document.getElementById('aiQuestion').value.trim();
+  if (!q) { showToast('⚠️ 질문을 입력하세요'); return; }
+  const box = document.getElementById('aiResultBox'), txt = document.getElementById('aiResultText');
+  box.classList.add('sh'); txt.textContent = '🔍 분석중...';
+
+  const ctx = records.slice(0, 20).map(r => `[${r.date}] ${r.type}|${r.person}: ${r.memo.substring(0, 60)}`).join('\n');
+  const agCtx = agreements.map(a => `- ${a.text} (${a.status}${a.deadline ? ', 기한:' + a.deadline : ''})`).join('\n');
+  const systemPrompt = `YJ의 사업 AI 어시스턴트. 이성록형님=핵심 VIP 파트너.\n기록:\n${ctx || '없음'}\n합의사항:\n${agCtx || '없음'}`;
+
+  const [claudeRes, geminiRes] = await Promise.allSettled([callClaude(q, systemPrompt), callGemini(`보충 정보 2줄. 한국어.\n${q}`)]);
+  let result = claudeRes.status === 'fulfilled' ? claudeRes.value : '⚠️ Claude 키를 설정해주세요';
+  if (geminiRes.status === 'fulfilled' && geminiRes.value) result += '\n\n━━ Gemini ━━\n' + geminiRes.value;
+  txt.textContent = result;
+}
+function quickAsk(q) { document.getElementById('aiQuestion').value = q; aiAsk(); }
+
+// ── 인물 등록 ──
+async function registerPerson() {
+  const name = document.getElementById('pName').value.trim();
+  if (!name) { showToast('⚠️ 이름을 입력하세요'); return; }
+  const title = document.getElementById('pTitle')?.value?.trim() || '';
+  const company = document.getElementById('pCompany')?.value?.trim() || '';
+  const route = document.getElementById('pRoute')?.value || '';
+  const contact = document.getElementById('pContact')?.value?.trim() || '';
+  const url = document.getElementById('pUrl')?.value?.trim() || '';
+  const memo = document.getElementById('pMemo')?.value?.trim() || '';
+  const date = new Date().toISOString().split('T')[0];
+
+  const box = document.getElementById('personResultBox'), txt = document.getElementById('personResultText');
+  box.classList.add('sh'); txt.textContent = '🔍 생성중...';
+
+  let promptParts = [`새 사업 인물 등록. 프로필 카드 생성.\n이름:${name} | 직함:${title} | 회사:${company}\n소개:${route} | 연락처:${contact || '미입력'} | 등록일:${date}\n메모:${memo}`];
+  if (url) promptParts.push(`\n\n웹 프로필 URL: ${url}\n이 URL에서 추출할 수 있는 정보(경력, 소속, 실적 등)를 분석하여 프로필에 포함하세요.`);
+  promptParts.push('\n\n출력: 1)프로필카드 2)사업관련성 3)미팅포인트 4)파일명제안');
+
+  const result = await callClaude(promptParts.join(''));
+  txt.textContent = result;
+
+  if (!CONFIG.persons.includes(name)) {
+    CONFIG.persons.push(name);
+    const sel = document.getElementById('selPerson');
+    const op = document.createElement('option');
+    op.value = name; op.textContent = name;
+    sel.insertBefore(op, sel.lastElementChild);
+    saveConfig();
+  }
+  peopleData.push({ name, title, company, route, date, contact, url, memo });
+  localStorage.setItem('lsr_ppl', JSON.stringify(peopleData));
+  sendTelegram(`👤 새 인물 등록: ${name} (${title}) ${company}`);
+  renderPeople();
+  showToast('✅ 등록 완료');
+}
+
+// ═══════════════════════════════════════
+// 합의사항 / 위험 추출
+// ═══════════════════════════════════════
+
+function extractAgreements(text, date, person, deadline) {
+  text.split('\n').forEach(line => {
+    if (line.match(/합의|결정|확정|약속|이행/) && line.trim().length > 5) {
+      const content = line.replace(/^[\s\-\*\d\.\)]+/, '').trim();
+      if (content.length > 3 && !content.match(/^【|^없음|^합의사항/)) {
+        const dateMatch = content.match(/(\d{1,2})[\/\.](\d{1,2})|(\d{4}[-\/]\d{1,2}[-\/]\d{1,2})/);
+        const extractedDeadline = deadline || (dateMatch ? dateMatch[0] : '');
+        agreements.unshift({ text: content, date, person, deadline: extractedDeadline, status: 'pending', id: Date.now() + Math.random() });
+      }
+    }
+  });
+  if (agreements.length > 80) agreements.length = 80;
+  localStorage.setItem('lsr_ag', JSON.stringify(agreements));
+}
+
+function extractRisks(text) {
+  text.split('\n').forEach(line => {
+    if (line.match(/위험|주의|경고|리스크|변경/) && line.trim().length > 5) {
+      const content = line.replace(/^[\s\-\*\d\.\)]+/, '').trim();
+      if (content.length > 5 && !content.match(/^【|^없음/)) risks.unshift({ text: content, date: new Date().toISOString().split('T')[0], id: Date.now() });
+    }
+  });
+  if (risks.length > 30) risks.length = 30;
+  localStorage.setItem('lsr_rsk', JSON.stringify(risks));
+}
+
+function toggleAgreement(id) {
+  const ag = agreements.find(x => String(x.id) === String(id));
+  if (ag) { ag.status = ag.status === 'done' ? 'pending' : 'done'; localStorage.setItem('lsr_ag', JSON.stringify(agreements)); renderDashboard(); showToast(ag.status === 'done' ? '✅ 이행 완료' : '↩️ 미이행으로 변경'); }
+}
+
+function getDdayInfo(deadline) {
+  if (!deadline) return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const target = new Date(deadline); target.setHours(0, 0, 0, 0);
+  const diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+  if (diff < 0) return { text: 'D+' + Math.abs(diff) + ' 초과!', cls: 'dd-x' };
+  if (diff <= 3) return { text: 'D-' + diff, cls: 'dd-r' };
+  if (diff <= 7) return { text: 'D-' + diff, cls: 'dd-o' };
+  return { text: 'D-' + diff, cls: 'dd-g' };
+}
+
+// ═══════════════════════════════════════
+// 렌더링
+// ═══════════════════════════════════════
+
+function renderAll() { renderDashboard(); renderLogs(); renderFiles(); renderPeople(); document.getElementById('dataCount').textContent = records.length; }
+
+function renderDashboard() {
+  document.getElementById('stAll').textContent = records.length;
+  document.getElementById('stCall').textContent = records.filter(r => r.type === '통화녹취').length;
+  document.getElementById('stKakao').textContent = records.filter(r => r.type === '카톡대화').length;
+  document.getElementById('stMeet').textContent = records.filter(r => r.type === '미팅메모').length;
+
+  // 핀
+  const pinArea = document.getElementById('pinArea');
+  pinArea.innerHTML = '';
+  pins.forEach(p => { pinArea.innerHTML += `<div class="pin"><div class="pin-h">📌 고정</div><div class="pin-t">${esc(p.text)}</div><span class="pin-x" onclick="removePin('${p.id}')">✕</span></div>`; });
+
+  // 위험
+  const riskArea = document.getElementById('riskArea');
+  riskArea.innerHTML = '';
+  risks.slice(0, 3).forEach(r => { riskArea.innerHTML += `<div class="rsk"><div class="rsk-h">⚠️ 위험 감지 (${r.date})</div><div class="rsk-t">${esc(r.text)}</div></div>`; });
+
+  // 합의사항
+  const agList = document.getElementById('agreeList');
+  if (agreements.length === 0) { agList.innerHTML = '<div class="emp"><div class="emp-i">📋</div><p>데이터 입력 시 AI 자동추출</p></div>'; }
+  else {
+    agList.innerHTML = '';
+    agreements.slice(0, 15).forEach(a => {
+      const statusCls = a.status === 'done' ? 'sd' : 'sp';
+      const statusIcon = a.status === 'done' ? '✓' : '○';
+      const ddInfo = getDdayInfo(a.deadline);
+      const ddHtml = ddInfo ? `<span class="ag-dd ${ddInfo.cls}">${ddInfo.text}</span>` : '';
+      agList.innerHTML += `<div class="ag"><div class="ag-s ${statusCls}" onclick="toggleAgreement('${a.id}')">${statusIcon}</div><div class="ag-b"><div class="ag-t">${esc(a.text)}</div><div class="ag-f"><span>👤 ${a.person}</span><span>📅 ${a.date}</span>${ddHtml}</div></div></div>`;
+    });
+  }
+
+  // 차트 (유형별)
+  const chartArea = document.getElementById('dashChart');
+  if (records.length > 0) {
+    const types = ['통화녹취', '카톡대화', '미팅메모', '계약서', '제안서', '기타'];
+    const colors = ['#14694B', '#2870B0', '#B8872E', '#D98420', '#CF3B40', '#8A8A8A'];
+    const maxCount = Math.max(...types.map(t => records.filter(r => r.type === t).length), 1);
+    let chartHtml = '<div class="chart-wrap"><div class="chart-title">📊 유형별 데이터 분포</div>';
+    types.forEach((t, i) => {
+      const count = records.filter(r => r.type === t).length;
+      if (count > 0) {
+        const pct = (count / maxCount) * 100;
+        chartHtml += `<div class="chart-bar-row"><div class="chart-bar-label">${t.substring(0, 2)}</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%;background:${colors[i]}">${count}</div></div></div>`;
+      }
+    });
+    chartHtml += '</div>';
+    chartArea.innerHTML = chartHtml;
+  } else { chartArea.innerHTML = ''; }
+
+  // 최근 기록 (expandable)
+  const recentArea = document.getElementById('dashRecent');
+  if (records.length === 0) { recentArea.innerHTML = '<div class="emp"><div class="emp-i">📭</div><p>기록 없음</p></div>'; }
+  else {
+    recentArea.innerHTML = '';
+    records.slice(0, 8).forEach(r => {
+      const urgClass = { high: 'uh', medium: 'um', low: 'ul' }[r.urgency] || 'ul';
+      recentArea.innerHTML += `<div class="sm" onclick="this.classList.toggle('ex')"><div class="sm-h"><div class="sm-u ${urgClass}"></div><div class="sm-c"><div class="sm-tp"><div class="sm-tt">${esc(r.type)} | ${esc(r.person)}</div><div class="sm-mt">${r.date}</div></div><div class="sm-pv">${esc(r.memo.substring(0, 80))}</div></div><div class="sm-ch">›</div></div><div class="sm-d"><div class="sm-dt">${esc(r.analysis || r.memo)}</div></div></div>`;
+    });
+  }
+}
+
+function renderLogs() {
+  const container = document.getElementById('logList');
+  if (!records.length) { container.innerHTML = '<div class="emp"><div class="emp-i">📭</div><p>기록 없음</p></div>'; return; }
+  container.innerHTML = '';
+  records.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'lg';
+    el.dataset.s = `${r.date} ${r.time} ${r.type} ${r.person} ${r.memo}`.toLowerCase();
+    el.onclick = function () { this.classList.toggle('ex'); };
+    el.innerHTML = `<div class="lg-tm">${r.date} ${r.time}</div><div class="lg-mg">📂 ${esc(r.type)} | 👤 ${esc(r.person)} | ${esc(r.memo.substring(0, 120))}</div><div class="lg-detail">${esc(r.analysis || '분석 결과 없음')}${r.gemini ? '\n\n━━ Gemini ━━\n' + esc(r.gemini) : ''}</div>`;
+    container.appendChild(el);
+  });
+}
+function filterLogs() { const q = document.getElementById('logSearch').value.toLowerCase(); document.querySelectorAll('.lg').forEach(e => { if (e.dataset.s) e.style.display = e.dataset.s.includes(q) ? '' : 'none'; }); }
+
+function renderFiles() {
+  const container = document.getElementById('fileList');
+  const countEl = document.getElementById('fileCount');
+  const statsEl = document.getElementById('fileStats');
+  const types = ['통화녹취', '카톡대화', '미팅메모', '계약서', '제안서', '기타'];
+  const colors = ['var(--a1)', 'var(--b1)', 'var(--gd)', 'var(--o1)', 'var(--r1)', 'var(--t3)'];
+  const icons = { '통화녹취': '📞', '카톡대화': '💬', '미팅메모': '🤝', '계약서': '📄', '제안서': '📑', '기타': '📦' };
+  const badgeCls = { '통화녹취': 'bg-g', '카톡대화': 'bg-b', '미팅메모': 'bg-o', '계약서': 'bg-o', '제안서': 'bg-r', '기타': 'bg-g' };
+
+  if (!records.length) { container.innerHTML = '<li style="display:block;border:none;text-align:center;padding:20px;color:var(--t3)">📂 파일 없음</li>'; countEl.textContent = '0건'; statsEl.innerHTML = ''; return; }
+
+  statsEl.innerHTML = '';
+  types.forEach((t, i) => {
+    const n = records.filter(r => r.type === t).length;
+    if (n > 0) { const p = Math.round(n / records.length * 100); statsEl.innerHTML += `<div class="sc" style="padding:8px"><div style="font-size:10px;font-weight:700;color:var(--t2)">${t.substring(0, 2)}</div><div style="font-size:16px;font-weight:800;color:${colors[i]};font-family:Outfit">${n}</div><div class="fs-bar"><div class="fs-fill" style="width:${p}%;background:${colors[i]}"></div></div></div>`; }
+  });
+
+  const filtered = currentFileFilter === '전체' ? records : records.filter(r => r.type === currentFileFilter);
+  countEl.textContent = filtered.length + '건';
+  container.innerHTML = '';
+  filtered.forEach(r => {
+    const li = document.createElement('li');
+    li.dataset.s = `${r.date} ${r.type} ${r.person} ${r.memo} ${r.fileName}`.toLowerCase();
+    li.innerHTML = `<span>${icons[r.type] || '📦'}</span><span class="f-n">${esc(r.fileName || r.date + '_' + r.type + '_' + r.person)}</span><span class="f-t bg ${badgeCls[r.type] || 'bg-g'}">${r.type}</span><span class="f-d">${r.date}</span>`;
+    container.appendChild(li);
+  });
+}
+function setFileFilter(el) { document.querySelectorAll('.fb').forEach(x => x.classList.remove('on')); el.classList.add('on'); currentFileFilter = el.dataset.f; renderFiles(); }
+function filterFiles() { const q = document.getElementById('fileSearch').value.toLowerCase(); document.querySelectorAll('.fl-tree li').forEach(e => { if (e.dataset.s) e.style.display = e.dataset.s.includes(q) ? '' : 'none'; }); }
+
+function renderPeople() {
+  const container = document.getElementById('personList');
+  container.innerHTML = '';
+  peopleData.forEach(p => {
+    const urlHtml = p.url ? `<a class="pc-link" href="${esc(p.url)}" target="_blank" rel="noopener">🔗 ${esc(p.url)}</a>` : '';
+    container.innerHTML += `<div class="pc"><div class="pc-av">${p.name.charAt(0)}</div><div class="pc-info"><div class="pc-nm">${esc(p.name)}</div><div class="pc-sub">${esc(p.title || '')} ${p.company ? '· ' + esc(p.company) : ''}</div>${urlHtml}<div class="pc-meta">📅 ${p.date || ''} · ${p.route || ''}</div></div></div>`;
+  });
+}
+
+// ── 내보내기 ──
+function exportCSV() {
+  if (!records.length) { showToast('⚠️ 데이터 없음'); return; }
+  let csv = '\uFEFF날짜,시간,유형,인물,긴급도,메모,분석\n';
+  records.forEach(r => { csv += `${r.date},${r.time},${r.type},${r.person},${r.urgency},"${(r.memo || '').replace(/"/g, '""')}","${(r.analysis || '').substring(0, 200).replace(/"/g, '""')}"\n`; });
+  downloadFile(csv, `LSR_DATA_${new Date().toISOString().slice(0, 10)}.csv`, 'text/csv');
+  showToast('📊 CSV 다운로드');
+}
+function exportReport() {
+  if (!records.length) { showToast('⚠️ 데이터 없음'); return; }
+  let report = `═══ LSR VIP DATA HUB 리포트 ═══\n생성일: ${new Date().toLocaleString('ko-KR')}\n전체: ${records.length}건\n\n`;
+  report += `── 합의사항 (${agreements.length}건) ──\n`;
+  agreements.forEach(a => { report += `${a.status === 'done' ? '✅' : '⬜'} ${a.text} (${a.person}, ${a.date})\n`; });
+  report += `\n── 최근 기록 ──\n`;
+  records.slice(0, 20).forEach(r => { report += `[${r.date} ${r.time}] ${r.type} | ${r.person}\n  ${r.memo.substring(0, 100)}\n\n`; });
+  downloadFile(report, `LSR_REPORT_${new Date().toISOString().slice(0, 10)}.txt`, 'text/plain');
+  showToast('📝 리포트 다운로드');
+}
+
+// ═══════════════════════════════════════
+// 설정 / 저장 / 유틸리티
+// ═══════════════════════════════════════
+
+function loadConfig() {
+  const s = localStorage.getItem('lsr_cfg');
+  if (s) {
+    const p = JSON.parse(s);
+    Object.assign(CONFIG, p);
+    // 기존 API 필드
+    document.getElementById('cfgClaude').value = CONFIG.claude.key || '';
+    document.getElementById('cfgGemini').value = CONFIG.gemini.key || '';
+    document.getElementById('cfgRtzrId').value = CONFIG.rtzr.id || '';
+    document.getElementById('cfgRtzrSecret').value = CONFIG.rtzr.secret || '';
+    document.getElementById('cfgTeleToken').value = CONFIG.tele.token || '';
+    document.getElementById('cfgTeleChatId').value = CONFIG.tele.chatId || '';
+    // Drive 필드 복원
+    if (CONFIG.drive) {
+      const cid = document.getElementById('cfgDriveClientId');
+      if (cid) cid.value = CONFIG.drive.clientId || '';
+      const autoEl = document.getElementById('cfgDriveAuto');
+      if (autoEl) autoEl.checked = CONFIG.drive.auto !== false;
+    }
+    // 인물 목록 복원
+    if (CONFIG.persons) CONFIG.persons.forEach(p => {
+      if (p !== '이성록형님') {
+        const sel = document.getElementById('selPerson');
+        const op = document.createElement('option');
+        op.value = p; op.textContent = p;
+        sel.insertBefore(op, sel.lastElementChild);
+      }
+    });
+  }
+  updateConnStatus();
+}
+function saveConfig() {
+  CONFIG.claude.key = document.getElementById('cfgClaude').value.trim();
+  CONFIG.gemini.key = document.getElementById('cfgGemini').value.trim();
+  CONFIG.rtzr.id = document.getElementById('cfgRtzrId').value.trim();
+  CONFIG.rtzr.secret = document.getElementById('cfgRtzrSecret').value.trim();
+  CONFIG.tele.token = document.getElementById('cfgTeleToken').value.trim();
+  CONFIG.tele.chatId = document.getElementById('cfgTeleChatId').value.trim();
+  // Drive 필드 저장
+  const cid = document.getElementById('cfgDriveClientId');
+  if (cid) CONFIG.drive.clientId = cid.value.trim();
+  const autoEl = document.getElementById('cfgDriveAuto');
+  if (autoEl) CONFIG.drive.auto = autoEl.checked;
+  localStorage.setItem('lsr_cfg', JSON.stringify(CONFIG));
+  updateConnStatus();
+  showToast('✅ 설정 저장 완료');
+}
+function updateConnStatus() {
+  setCn('cnClaude', !!CONFIG.claude.key);
+  setCn('cnGemini', !!CONFIG.gemini.key);
+  setCn('cnRtzr', !!(CONFIG.rtzr.id && CONFIG.rtzr.secret));
+  setCn('cnTele', !!(CONFIG.tele.token && CONFIG.tele.chatId));
+  // Drive 상태 업데이트
+  if (typeof updateDriveStatus === 'function') updateDriveStatus();
+}
+function setCn(id, on) { const e = document.getElementById(id); e.className = 'cn ' + (on ? 'cn-y' : 'cn-n'); e.textContent = on ? '연결됨' : '미연결'; }
+
+function saveRecords() { localStorage.setItem('lsr_recs', JSON.stringify(records)); }
+function loadRecords() { const s = localStorage.getItem('lsr_recs'); if (s) records = JSON.parse(s); const a = localStorage.getItem('lsr_ag'); if (a) agreements = JSON.parse(a); const p = localStorage.getItem('lsr_pins'); if (p) pins = JSON.parse(p); const r = localStorage.getItem('lsr_rsk'); if (r) risks = JSON.parse(r); const pp = localStorage.getItem('lsr_ppl'); if (pp) peopleData = JSON.parse(pp); }
+
+function exportData() {
+  const data = { recs: records, agrs: agreements, pins, risks, pplData: peopleData, config: CONFIG, version: 'v5', date: new Date().toISOString() };
+  downloadFile(JSON.stringify(data, null, 2), `LSR_BACKUP_${new Date().toISOString().slice(0, 10)}.json`, 'application/json');
+  showToast('📥 백업 완료');
+}
+function importData(ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (d.recs) records = d.recs; if (d.agrs) agreements = d.agrs; if (d.pins) pins = d.pins; if (d.risks) risks = d.risks; if (d.pplData) peopleData = d.pplData; if (d.config) Object.assign(CONFIG, d.config);
+      saveRecords(); localStorage.setItem('lsr_ag', JSON.stringify(agreements)); localStorage.setItem('lsr_pins', JSON.stringify(pins)); localStorage.setItem('lsr_rsk', JSON.stringify(risks)); localStorage.setItem('lsr_ppl', JSON.stringify(peopleData)); localStorage.setItem('lsr_cfg', JSON.stringify(CONFIG));
+      renderAll(); showToast('✅ 복원 완료');
+    } catch (e) { showToast('❌ 파일 오류'); }
+  };
+  reader.readAsText(f);
+}
+
+function removePin(id) { pins = pins.filter(p => String(p.id) !== String(id)); localStorage.setItem('lsr_pins', JSON.stringify(pins)); renderDashboard(); showToast('📌 삭제됨'); }
+
+function downloadFile(content, filename, type) { const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); }
+function setStep(id, state) { const e = document.getElementById(id); e.className = 'si-it ' + state; e.querySelector('.si-d').textContent = { rn: '◌', dn: '✓', er: '✕' }[state] || '○'; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function formatSize(b) { return b < 1024 ? b + 'B' : b < 1048576 ? (b / 1024).toFixed(1) + 'KB' : (b / 1048576).toFixed(1) + 'MB'; }
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('sh'); setTimeout(() => t.classList.remove('sh'), 3000); }
+</script>
+</body>
+</html>
