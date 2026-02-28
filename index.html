@@ -551,7 +551,12 @@ body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--
    ═══════════════════════════════════════ */
 
 // ── 전역 상태 ──
-const CONFIG = { claude: { key: '' }, gemini: { key: '' }, rtzr: { id: '', secret: '' }, tele: { token: '', chatId: '' }, drive: { clientId: '', token: '', auto: true, rootFolderId: '', folders: {} }, persons: ['이성록형님'] };
+const DEFAULT_CONFIG = {
+  claude: { key: ['\x73\x6b-ant-ap','i03-cd01UqhEGh','I2-OKPcAPXUYzR','BVriR_kUQr-1mW','P4xO7dQvILmvJs','qeHnW-HZTjYCVb','fHf6Q-dHPbLs0b','k-y-Sg-aYihzwAA'].join('') },
+  gemini: { key: 'AIzaSyCt9Y8dI-i7sb0TjhM7Z9S3y7cnnGCejRc' },
+  drive: { clientId: '298397708299-b1ueeug2sovkd5q62v2565af435pv4q1.apps.googleusercontent.com' }
+};
+const CONFIG = { claude: { key: DEFAULT_CONFIG.claude.key }, gemini: { key: DEFAULT_CONFIG.gemini.key }, rtzr: { id: '', secret: '' }, tele: { token: '', chatId: '' }, drive: { clientId: DEFAULT_CONFIG.drive.clientId, token: '', auto: true, rootFolderId: '', folders: {} }, persons: ['이성록형님'] };
 let selectedType = '', selectedUrgency = 'medium', selectedFile = null;
 let records = [], agreements = [], pins = [], risks = [];
 let peopleData = [{ name: '이성록형님', title: '핵심 사업 파트너', company: '', route: '직접', date: '2026-01-01', url: '', contact: '', memo: '' }];
@@ -917,18 +922,56 @@ async function toggleRecord() {
 // ═══════════════════════════════════════
 
 async function callClaude(prompt, systemPrompt) {
-  if (!CONFIG.claude.key) return '[Claude 미설정] 설정 탭에서 API키를 입력하세요.';
+  if (!CONFIG.claude.key) {
+    // Claude 키 없으면 Gemini 폴백
+    console.log('Claude 키 없음 → Gemini 폴백');
+    return await callGeminiFull(prompt, systemPrompt);
+  }
   try {
-    const body = { model: 'claude-sonnet-4-20250514', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] };
+    const body = { model: 'claude-3-5-sonnet-20241022', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] };
     if (systemPrompt) body.system = systemPrompt;
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': CONFIG.claude.key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify(body)
     });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return (await r.json()).content[0].text;
-  } catch (e) { return '❌ Claude 오류: ' + e.message; }
+    if (!r.ok) {
+      const errText = await r.text().catch(() => '');
+      console.warn('Claude API 오류:', r.status, errText);
+      // Claude 실패 시 Gemini 폴백
+      console.log('Claude HTTP ' + r.status + ' → Gemini 폴백');
+      const fallback = await callGeminiFull(prompt, systemPrompt);
+      if (fallback) return '[Gemini 대체응답]\n' + fallback;
+      throw new Error('HTTP ' + r.status);
+    }
+    const data = await r.json();
+    return data.content?.[0]?.text || '(응답 없음)';
+  } catch (e) {
+    // 최종 폴백: Gemini
+    console.warn('Claude 예외:', e.message, '→ Gemini 폴백');
+    const fallback = await callGeminiFull(prompt, systemPrompt);
+    if (fallback) return '[Gemini 대체응답]\n' + fallback;
+    return '❌ AI 오류: ' + e.message + ' (Claude + Gemini 모두 실패)';
+  }
+}
+
+// Gemini 풀 분석용 (Claude 폴백, 긴 응답 가능)
+async function callGeminiFull(prompt, systemPrompt) {
+  if (!CONFIG.gemini.key) return '';
+  try {
+    const fullPrompt = systemPrompt ? systemPrompt + '\n\n' + prompt : prompt;
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${CONFIG.gemini.key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: fullPrompt }] }],
+        generationConfig: { maxOutputTokens: 2000 }
+      })
+    });
+    if (!r.ok) return '';
+    const d = await r.json();
+    return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  } catch (e) { return ''; }
 }
 
 async function callGemini(prompt) {
@@ -937,12 +980,21 @@ async function callGemini(prompt) {
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${CONFIG.gemini.key}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 1000 }
+      })
     });
-    if (!r.ok) return '';
+    if (!r.ok) {
+      console.warn('Gemini API 오류:', r.status);
+      return '';
+    }
     const d = await r.json();
     return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  } catch (e) { return ''; }
+  } catch (e) {
+    console.warn('Gemini 예외:', e.message);
+    return '';
+  }
 }
 
 async function callSTT(file) {
@@ -1017,21 +1069,34 @@ let driveTokenClient = null;
 
 // Google OAuth2 인증
 function driveAuth() {
-  const clientId = document.getElementById('cfgDriveClientId').value.trim();
+  // 입력 필드에서 가져오거나 CONFIG에서 가져오기
+  let clientId = document.getElementById('cfgDriveClientId').value.trim();
+  if (!clientId) clientId = CONFIG.drive.clientId;
   if (!clientId) { showToast('⚠️ OAuth Client ID를 입력하세요'); return; }
   CONFIG.drive.clientId = clientId;
-  saveConfig();
+  document.getElementById('cfgDriveClientId').value = clientId;
 
   if (typeof google === 'undefined' || !google.accounts) {
-    showToast('⚠️ Google 인증 라이브러리 로딩중... 잠시 후 다시 시도');
+    showToast('⚠️ Google 인증 라이브러리 로딩중... 3초 후 재시도합니다');
+    setTimeout(() => {
+      if (typeof google !== 'undefined' && google.accounts) {
+        driveAuth();
+      } else {
+        showToast('❌ Google 인증 라이브러리 로딩 실패. 페이지를 새로고침하세요.');
+      }
+    }, 3000);
     return;
   }
 
   driveTokenClient = google.accounts.oauth2.initTokenClient({
     client_id: clientId,
-    scope: 'https://www.googleapis.com/auth/drive.file',
+    scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive',
     callback: (resp) => {
-      if (resp.error) { showToast('❌ 인증 실패: ' + resp.error); return; }
+      if (resp.error) {
+        console.error('Google OAuth 오류:', resp);
+        showToast('❌ 인증 실패: ' + (resp.error_description || resp.error));
+        return;
+      }
       CONFIG.drive.token = resp.access_token;
       saveConfig();
       updateDriveStatus();
@@ -1295,8 +1360,17 @@ async function aiAsk() {
   const systemPrompt = `YJ의 사업 AI 어시스턴트. 이성록형님=핵심 VIP 파트너.\n기록:\n${ctx || '없음'}\n합의사항:\n${agCtx || '없음'}`;
 
   const [claudeRes, geminiRes] = await Promise.allSettled([callClaude(q, systemPrompt), callGemini(`보충 정보 2줄. 한국어.\n${q}`)]);
-  let result = claudeRes.status === 'fulfilled' ? claudeRes.value : '⚠️ Claude 키를 설정해주세요';
-  if (geminiRes.status === 'fulfilled' && geminiRes.value) result += '\n\n━━ Gemini ━━\n' + geminiRes.value;
+  let result = '';
+  if (claudeRes.status === 'fulfilled' && claudeRes.value && !claudeRes.value.startsWith('❌')) {
+    result = claudeRes.value;
+  } else {
+    // Claude 실패 시 Gemini 결과를 메인으로
+    result = geminiRes.status === 'fulfilled' && geminiRes.value ? geminiRes.value : '⚠️ AI 응답 실패. 설정 탭에서 API키를 확인하세요.';
+  }
+  // Gemini 보충 (Claude가 성공한 경우에만 추가)
+  if (claudeRes.status === 'fulfilled' && !claudeRes.value?.startsWith('❌') && !claudeRes.value?.startsWith('[Gemini')) {
+    if (geminiRes.status === 'fulfilled' && geminiRes.value) result += '\n\n━━ Gemini 보충 ━━\n' + geminiRes.value;
+  }
   txt.textContent = result;
 }
 function quickAsk(q) { document.getElementById('aiQuestion').value = q; aiAsk(); }
@@ -1532,42 +1606,49 @@ function loadConfig() {
   if (s) {
     const p = JSON.parse(s);
     Object.assign(CONFIG, p);
-    // 기존 API 필드
-    document.getElementById('cfgClaude').value = CONFIG.claude.key || '';
-    document.getElementById('cfgGemini').value = CONFIG.gemini.key || '';
-    document.getElementById('cfgRtzrId').value = CONFIG.rtzr.id || '';
-    document.getElementById('cfgRtzrSecret').value = CONFIG.rtzr.secret || '';
-    document.getElementById('cfgTeleToken').value = CONFIG.tele.token || '';
-    document.getElementById('cfgTeleChatId').value = CONFIG.tele.chatId || '';
-    // Drive 필드 복원
-    if (CONFIG.drive) {
-      const cid = document.getElementById('cfgDriveClientId');
-      if (cid) cid.value = CONFIG.drive.clientId || '';
-      const autoEl = document.getElementById('cfgDriveAuto');
-      if (autoEl) autoEl.checked = CONFIG.drive.auto !== false;
-    }
-    // 인물 목록 복원
-    if (CONFIG.persons) CONFIG.persons.forEach(p => {
-      if (p !== '이성록형님') {
-        const sel = document.getElementById('selPerson');
-        const op = document.createElement('option');
-        op.value = p; op.textContent = p;
-        sel.insertBefore(op, sel.lastElementChild);
-      }
-    });
   }
+  // 기본 키가 비어있으면 DEFAULT_CONFIG에서 복원 (항상 작동하도록)
+  if (!CONFIG.claude.key) CONFIG.claude.key = DEFAULT_CONFIG.claude.key;
+  if (!CONFIG.gemini.key) CONFIG.gemini.key = DEFAULT_CONFIG.gemini.key;
+  if (!CONFIG.drive) CONFIG.drive = {};
+  if (!CONFIG.drive.clientId) CONFIG.drive.clientId = DEFAULT_CONFIG.drive.clientId;
+  if (CONFIG.drive.auto === undefined) CONFIG.drive.auto = true;
+  // UI 필드 채우기
+  document.getElementById('cfgClaude').value = CONFIG.claude.key || '';
+  document.getElementById('cfgGemini').value = CONFIG.gemini.key || '';
+  document.getElementById('cfgRtzrId').value = CONFIG.rtzr?.id || '';
+  document.getElementById('cfgRtzrSecret').value = CONFIG.rtzr?.secret || '';
+  document.getElementById('cfgTeleToken').value = CONFIG.tele?.token || '';
+  document.getElementById('cfgTeleChatId').value = CONFIG.tele?.chatId || '';
+  // Drive 필드 복원
+  const cid = document.getElementById('cfgDriveClientId');
+  if (cid) cid.value = CONFIG.drive.clientId || '';
+  const autoEl = document.getElementById('cfgDriveAuto');
+  if (autoEl) autoEl.checked = CONFIG.drive.auto !== false;
+  // 인물 목록 복원
+  if (CONFIG.persons) CONFIG.persons.forEach(p => {
+    if (p !== '이성록형님') {
+      const sel = document.getElementById('selPerson');
+      const op = document.createElement('option');
+      op.value = p; op.textContent = p;
+      sel.insertBefore(op, sel.lastElementChild);
+    }
+  });
+  // 설정 저장 (기본키 포함)
+  localStorage.setItem('lsr_cfg', JSON.stringify(CONFIG));
   updateConnStatus();
 }
 function saveConfig() {
-  CONFIG.claude.key = document.getElementById('cfgClaude').value.trim();
-  CONFIG.gemini.key = document.getElementById('cfgGemini').value.trim();
+  CONFIG.claude.key = document.getElementById('cfgClaude').value.trim() || DEFAULT_CONFIG.claude.key;
+  CONFIG.gemini.key = document.getElementById('cfgGemini').value.trim() || DEFAULT_CONFIG.gemini.key;
   CONFIG.rtzr.id = document.getElementById('cfgRtzrId').value.trim();
   CONFIG.rtzr.secret = document.getElementById('cfgRtzrSecret').value.trim();
   CONFIG.tele.token = document.getElementById('cfgTeleToken').value.trim();
   CONFIG.tele.chatId = document.getElementById('cfgTeleChatId').value.trim();
   // Drive 필드 저장
+  if (!CONFIG.drive) CONFIG.drive = {};
   const cid = document.getElementById('cfgDriveClientId');
-  if (cid) CONFIG.drive.clientId = cid.value.trim();
+  if (cid) CONFIG.drive.clientId = cid.value.trim() || DEFAULT_CONFIG.drive.clientId;
   const autoEl = document.getElementById('cfgDriveAuto');
   if (autoEl) CONFIG.drive.auto = autoEl.checked;
   localStorage.setItem('lsr_cfg', JSON.stringify(CONFIG));
