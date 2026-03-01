@@ -538,7 +538,8 @@ body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--
   <div class="cd"><div class="cd-h"><div class="cd-t"><span class="ic ib">💾</span>데이터</div></div>
   <div style="display:flex;gap:8px"><button class="bs" onclick="exportData()" style="flex:1">📥 백업</button><button class="bs" onclick="document.getElementById('importFile').click()" style="flex:1">📤 복원</button></div>
   <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-  <div style="margin-top:10px;font-size:10px;color:var(--t3)">💾 저장: <span id="dataCount">0</span>건 / 300건 | localStorage</div></div>
+  <div style="margin-top:10px;font-size:10px;color:var(--t3)">💾 저장: <span id="dataCount">0</span>건 / 300건 | localStorage</div>
+  <button class="bs" onclick="resetAllData()" style="margin-top:10px;width:100%;color:var(--r1);border-color:var(--r1)">🗑️ 데이터 초기화</button></div>
 </div>
 
 </div><!-- /mn -->
@@ -928,7 +929,7 @@ async function callClaude(prompt, systemPrompt) {
     return await callGeminiFull(prompt, systemPrompt);
   }
   try {
-    const body = { model: 'claude-3-5-sonnet-20241022', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] };
+    const body = { model: 'claude-sonnet-4-20250514', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] };
     if (systemPrompt) body.system = systemPrompt;
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -1687,6 +1688,20 @@ function importData(ev) {
   reader.readAsText(f);
 }
 
+function resetAllData() {
+  const pw = prompt('데이터 초기화 비밀번호를 입력하세요:');
+  if (pw !== '0729') { showToast('❌ 비밀번호가 틀립니다'); return; }
+  if (!confirm('정말 모든 데이터를 초기화하시겠습니까?\n기록, 합의사항, 핀, 위험, 인물 데이터가 모두 삭제됩니다.')) return;
+  records = []; agreements = []; pins = []; risks = [];
+  peopleData = [{ name: '이성록형님', title: '핵심 사업 파트너', company: '', route: '직접', date: '2026-01-01', url: '', contact: '', memo: '' }];
+  saveRecords();
+  localStorage.setItem('lsr_ag', JSON.stringify(agreements));
+  localStorage.setItem('lsr_pins', JSON.stringify(pins));
+  localStorage.setItem('lsr_rsk', JSON.stringify(risks));
+  localStorage.setItem('lsr_ppl', JSON.stringify(peopleData));
+  renderAll();
+  showToast('🗑️ 데이터가 초기화되었습니다');
+}
 function removePin(id) { pins = pins.filter(p => String(p.id) !== String(id)); localStorage.setItem('lsr_pins', JSON.stringify(pins)); renderDashboard(); showToast('📌 삭제됨'); }
 
 function downloadFile(content, filename, type) { const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); }
