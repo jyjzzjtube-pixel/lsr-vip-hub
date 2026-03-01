@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#14694B">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>LSR VIP DATA HUB v6</title>
+<title>LSR VIP DATA HUB v6.2</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -14,7 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════
-   LSR VIP DATA HUB v6 — Design System
+   LSR VIP DATA HUB v6.2 — Design System
    ═══════════════════════════════════════ */
 :root {
   --bg: #F3F0EA; --bg2: #FFFFFF; --bg3: #FAF8F4; --bg4: #EDEAE3;
@@ -356,7 +356,7 @@ body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--
       <div>
         <div class="logo-t">VIP DATA HUB</div>
         <div class="logo-s">Lee Sung Rok Intelligence</div>
-        <div class="logo-v">v6.0</div>
+        <div class="logo-v">v6.2</div>
       </div>
     </div>
     <div class="hd-r">
@@ -424,7 +424,7 @@ body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--
   <div class="fg"><label class="fl">📂 데이터 유형</label><div class="tg" id="typeGrid"><div class="tb" data-t="통화녹취">📞 통화녹취</div><div class="tb" data-t="카톡대화">💬 카톡대화</div><div class="tb" data-t="미팅메모">🤝 미팅메모</div><div class="tb" data-t="계약서">📄 계약서</div><div class="tb" data-t="제안서">📑 제안서</div><div class="tb" data-t="기타">📦 기타</div></div></div>
   <div class="fg"><label class="fl">🚨 긴급도</label><div class="tg" style="grid-template-columns:repeat(3,1fr)" id="urgGrid"><div class="tb ub" data-u="high">🔴 긴급</div><div class="tb ub on" data-u="medium">🟡 보통</div><div class="tb ub" data-u="low">🟢 일반</div></div></div>
   <div class="fg"><label class="fl">📅 날짜 / 시간</label><div class="dt-r"><input type="date" class="fi" id="inputDate"><input type="time" class="fi" id="inputTime"></div></div>
-  <div class="fg"><label class="fl">📝 핵심 메모</label><textarea class="ft" id="inputMemo" placeholder="핵심 내용, 기억할 사항..."></textarea></div>
+  <div class="fg"><label class="fl">📝 핵심 메모</label><textarea class="ft" id="inputMemo" placeholder="핵심 내용, 기억할 사항..." maxlength="5000"></textarea><div style="font-size:10px;color:var(--t3);text-align:right;margin-top:2px"><span id="memoCount">0</span>/5000</div></div>
   <div class="fg"><label class="fl">📌 핀 고정 (대시보드 표시)</label><input type="text" class="fi" id="inputPin" placeholder="항상 보여줄 중요 메모"></div>
   <div class="fg"><label class="fl">⏰ 기한 (합의사항 D-day 추적)</label><input type="date" class="fi" id="inputDeadline"></div></div>
 
@@ -548,17 +548,18 @@ body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--
 
 <script>
 /* ═══════════════════════════════════════
-   LSR VIP DATA HUB v6 — Application Logic (통합스캔)
+   LSR VIP DATA HUB v6.2 — Application Logic (통합스캔)
    ═══════════════════════════════════════ */
 
 // ── 전역 상태 ──
 const DEFAULT_CONFIG = {
-  claude: { key: ['\x73\x6b-ant-ap','i03-cd01UqhEGh','I2-OKPcAPXUYzR','BVriR_kUQr-1mW','P4xO7dQvILmvJs','qeHnW-HZTjYCVb','fHf6Q-dHPbLs0b','k-y-Sg-aYihzwAA'].join('') },
-  gemini: { key: 'AIzaSyCt9Y8dI-i7sb0TjhM7Z9S3y7cnnGCejRc' },
-  drive: { clientId: '298397708299-b1ueeug2sovkd5q62v2565af435pv4q1.apps.googleusercontent.com' }
+  claude: { key: '' },
+  gemini: { key: '' },
+  drive: { clientId: '' }
 };
-const CONFIG = { claude: { key: DEFAULT_CONFIG.claude.key }, gemini: { key: DEFAULT_CONFIG.gemini.key }, rtzr: { id: '', secret: '' }, tele: { token: '', chatId: '' }, drive: { clientId: DEFAULT_CONFIG.drive.clientId, token: '', auto: true, rootFolderId: '', folders: {} }, persons: ['이성록형님'] };
+const CONFIG = { claude: { key: '' }, gemini: { key: '' }, rtzr: { id: '', secret: '' }, tele: { token: '', chatId: '' }, drive: { clientId: '', token: '', auto: true, rootFolderId: '', folders: {} }, persons: ['이성록형님'] };
 let selectedType = '', selectedUrgency = 'medium', selectedFile = null;
+let isProcessing = false; // API 호출 중복 방지
 let records = [], agreements = [], pins = [], risks = [];
 let peopleData = [{ name: '이성록형님', title: '핵심 사업 파트너', company: '', route: '직접', date: '2026-01-01', url: '', contact: '', memo: '' }];
 let mediaRecorder = null, audioChunks = [], recInterval = null, recSeconds = 0, isRecording = false, currentFileFilter = '전체';
@@ -587,7 +588,7 @@ function goTab(tab) {
 // ── 다크모드 ──
 let isDark = localStorage.getItem('lsr_dk') === '1';
 if (isDark) document.body.classList.add('dark');
-function toggleDark() { isDark = !isDark; document.body.classList.toggle('dark'); localStorage.setItem('lsr_dk', isDark ? '1' : '0'); document.getElementById('dmBtn').textContent = isDark ? '☀️' : '🌙'; }
+function toggleDark() { isDark = !isDark; document.body.classList.toggle('dark'); safeSetItem('lsr_dk', isDark ? '1' : '0'); document.getElementById('dmBtn').textContent = isDark ? '☀️' : '🌙'; }
 
 // ═══════════════════════════════════════
 // v6 통합 스캔 업로드 엔진
@@ -880,6 +881,10 @@ function showClassificationResult(cls) {
 document.querySelectorAll('#typeGrid .tb').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('#typeGrid .tb').forEach(x => x.classList.remove('on')); b.classList.add('on'); selectedType = b.dataset.t; }));
 document.querySelectorAll('#urgGrid .ub').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('#urgGrid .ub').forEach(x => x.classList.remove('on')); b.classList.add('on'); selectedUrgency = b.dataset.u; }));
 function setDefaultDateTime() { const n = new Date(); document.getElementById('inputDate').value = n.toISOString().split('T')[0]; document.getElementById('inputTime').value = n.toTimeString().slice(0, 5); }
+// 메모 글자수 카운터
+document.getElementById('inputMemo').addEventListener('input', function() { document.getElementById('memoCount').textContent = this.value.length; });
+// 날짜 유효성 검증
+function isValidDate(dateStr) { if (!dateStr) return false; const re = /^\d{4}-\d{2}-\d{2}$/; if (!re.test(dateStr)) return false; const d = new Date(dateStr); return d instanceof Date && !isNaN(d) && d.toISOString().slice(0, 10) === dateStr; }
 function togglePersonField(el) { const fg = document.getElementById('fg_' + el.dataset.pf); if (fg) fg.style.display = el.checked ? '' : 'none'; }
 
 // ── 녹음 ──
@@ -1012,22 +1017,29 @@ async function callSTT(file) {
   const fillEl = document.getElementById('sttFill');
   const lblEl = document.getElementById('sttLabel');
   progEl.classList.add('sh');
-  for (let i = 0; i < 60; i++) {
-    await sleep(3000);
-    fillEl.style.width = Math.min(95, (i / 60) * 100) + '%';
-    lblEl.textContent = `폴링 ${i + 1}/60 (${(i * 3)}초 경과)`;
+  const maxPolls = 60;
+  const pollInterval = 3000;
+  const totalEstSec = maxPolls * (pollInterval / 1000);
+  for (let i = 0; i < maxPolls; i++) {
+    await sleep(pollInterval);
+    const elapsed = (i + 1) * (pollInterval / 1000);
+    const pct = Math.min(95, ((i + 1) / maxPolls) * 100);
+    fillEl.style.width = pct + '%';
+    const remaining = Math.max(0, totalEstSec - elapsed);
+    const statusEmoji = i % 3 === 0 ? '🔄' : i % 3 === 1 ? '⏳' : '🎙️';
+    lblEl.textContent = `${statusEmoji} STT 변환중... ${Math.round(pct)}% (${Math.round(elapsed)}초 경과 / 최대 ${Math.round(remaining)}초 남음)`;
     const pollRes = await fetch(`https://openapi.vito.ai/v1/transcribe/${taskId}`, { headers: { Authorization: 'Bearer ' + jwt } });
     const pollData = await pollRes.json();
     if (pollData.status === 'completed') {
       fillEl.style.width = '100%';
-      lblEl.textContent = '✅ 변환 완료';
+      lblEl.textContent = '✅ 변환 완료 (' + Math.round(elapsed) + '초 소요)';
       let text = '';
       if (pollData.results?.utterances) pollData.results.utterances.forEach(u => { text += `[화자${(u.spk || 0) + 1}] ${u.msg}\n`; });
       return text || '(변환 결과 없음)';
     }
     if (pollData.status === 'failed') throw new Error('전사 실패');
   }
-  throw new Error('타임아웃 (3분)');
+  throw new Error('타임아웃 (3분) — 파일이 너무 크거나 서버 응답 지연');
 }
 
 async function sendTelegram(message) {
@@ -1117,7 +1129,7 @@ async function driveAPI(path, options = {}) {
     ...options,
     headers: { 'Authorization': 'Bearer ' + CONFIG.drive.token, ...(options.headers || {}) }
   });
-  if (r.status === 401) { CONFIG.drive.token = ''; saveConfig(); updateDriveStatus(); throw new Error('토큰 만료 - 재연결 필요'); }
+  if (r.status === 401) { CONFIG.drive.token = ''; saveConfig(); updateDriveStatus(); showDriveReconnect(); throw new Error('토큰 만료 - 재연결 버튼을 눌러주세요'); }
   if (!r.ok) throw new Error('Drive API 오류 ' + r.status);
   return r.json();
 }
@@ -1207,7 +1219,7 @@ async function driveUploadFile(file, dataType, person, suggestedName) {
     body: form
   });
 
-  if (r.status === 401) { CONFIG.drive.token = ''; saveConfig(); updateDriveStatus(); throw new Error('토큰 만료'); }
+  if (r.status === 401) { CONFIG.drive.token = ''; saveConfig(); updateDriveStatus(); showDriveReconnect(); throw new Error('토큰 만료 - 재연결 버튼을 눌러주세요'); }
   if (!r.ok) throw new Error('업로드 실패 ' + r.status);
   return r.json();
 }
@@ -1256,11 +1268,20 @@ function updateDriveStatus() {
   if (autoEl) autoEl.checked = CONFIG.drive.auto !== false;
 }
 
+// Drive 재연결 안내 (토큰 만료 시)
+function showDriveReconnect() {
+  const t = document.getElementById('toast');
+  t.innerHTML = '⚠️ Drive 토큰 만료 <button onclick="driveAuth();this.parentElement.classList.remove(\'sh\')" style="margin-left:8px;padding:4px 12px;background:var(--a1);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">🔄 재연결</button>';
+  t.classList.add('sh');
+  setTimeout(() => { if (t.classList.contains('sh')) t.classList.remove('sh'); }, 10000);
+}
+
 // ═══════════════════════════════════════
 // 메인 처리 프로세스
 // ═══════════════════════════════════════
 
 async function processData() {
+  if (isProcessing) { showToast('⏳ 처리중입니다. 잠시 기다려주세요.'); return; }
   const person = document.getElementById('selPerson').value;
   const date = document.getElementById('inputDate').value;
   const time = document.getElementById('inputTime').value;
@@ -1270,7 +1291,11 @@ async function processData() {
   if (!person) { showToast('⚠️ 인물을 선택하세요'); return; }
   if (!selectedType) { showToast('⚠️ 데이터 유형을 선택하세요'); return; }
   if (!memo) { showToast('⚠️ 핵심 메모를 입력하세요'); return; }
+  if (memo.length > 5000) { showToast('⚠️ 메모는 5000자 이내로 입력하세요'); return; }
+  if (date && !isValidDate(date)) { showToast('⚠️ 날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)'); return; }
+  if (deadline && !isValidDate(deadline)) { showToast('⚠️ 기한 날짜 형식이 올바르지 않습니다'); return; }
 
+  isProcessing = true;
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = '⏳ 처리중...';
   document.getElementById('processSteps').classList.add('sh');
@@ -1338,7 +1363,7 @@ async function processData() {
     // 합의사항/위험 자동 추출
     extractAgreements(claudeResult, date, person, deadline);
     extractRisks(claudeResult);
-    if (pinText) { pins.unshift({ text: pinText, date, id: Date.now() }); localStorage.setItem('lsr_pins', JSON.stringify(pins)); }
+    if (pinText) { pins.unshift({ text: pinText, date, id: Date.now() }); safeSetItem('lsr_pins', JSON.stringify(pins)); }
 
     // 결과 표시
     document.getElementById('resultText').textContent = claudeResult + (geminiResult ? '\n\n━━ Gemini 보충 ━━\n' + geminiResult : '');
@@ -1346,6 +1371,7 @@ async function processData() {
     renderAll();
     showToast('✅ 완료');
   } catch (e) { showToast('❌ ' + e.message); }
+  isProcessing = false;
   btn.disabled = false; btn.textContent = '⚡ 저장 & AI 분석 실행';
 }
 
@@ -1407,7 +1433,7 @@ async function registerPerson() {
     saveConfig();
   }
   peopleData.push({ name, title, company, route, date, contact, url, memo });
-  localStorage.setItem('lsr_ppl', JSON.stringify(peopleData));
+  safeSetItem('lsr_ppl', JSON.stringify(peopleData));
   sendTelegram(`👤 새 인물 등록: ${name} (${title}) ${company}`);
   renderPeople();
   showToast('✅ 등록 완료');
@@ -1429,7 +1455,7 @@ function extractAgreements(text, date, person, deadline) {
     }
   });
   if (agreements.length > 80) agreements.length = 80;
-  localStorage.setItem('lsr_ag', JSON.stringify(agreements));
+  safeSetItem('lsr_ag', JSON.stringify(agreements));
 }
 
 function extractRisks(text) {
@@ -1440,12 +1466,12 @@ function extractRisks(text) {
     }
   });
   if (risks.length > 30) risks.length = 30;
-  localStorage.setItem('lsr_rsk', JSON.stringify(risks));
+  safeSetItem('lsr_rsk', JSON.stringify(risks));
 }
 
 function toggleAgreement(id) {
   const ag = agreements.find(x => String(x.id) === String(id));
-  if (ag) { ag.status = ag.status === 'done' ? 'pending' : 'done'; localStorage.setItem('lsr_ag', JSON.stringify(agreements)); renderDashboard(); showToast(ag.status === 'done' ? '✅ 이행 완료' : '↩️ 미이행으로 변경'); }
+  if (ag) { ag.status = ag.status === 'done' ? 'pending' : 'done'; safeSetItem('lsr_ag', JSON.stringify(agreements)); renderDashboard(); showToast(ag.status === 'done' ? '✅ 이행 완료' : '↩️ 미이행으로 변경'); }
 }
 
 function getDdayInfo(deadline) {
@@ -1608,11 +1634,8 @@ function loadConfig() {
     const p = JSON.parse(s);
     Object.assign(CONFIG, p);
   }
-  // 기본 키가 비어있으면 DEFAULT_CONFIG에서 복원 (항상 작동하도록)
-  if (!CONFIG.claude.key) CONFIG.claude.key = DEFAULT_CONFIG.claude.key;
-  if (!CONFIG.gemini.key) CONFIG.gemini.key = DEFAULT_CONFIG.gemini.key;
+  // Drive 기본 구조 보장
   if (!CONFIG.drive) CONFIG.drive = {};
-  if (!CONFIG.drive.clientId) CONFIG.drive.clientId = DEFAULT_CONFIG.drive.clientId;
   if (CONFIG.drive.auto === undefined) CONFIG.drive.auto = true;
   // UI 필드 채우기
   document.getElementById('cfgClaude').value = CONFIG.claude.key || '';
@@ -1635,13 +1658,13 @@ function loadConfig() {
       sel.insertBefore(op, sel.lastElementChild);
     }
   });
-  // 설정 저장 (기본키 포함)
-  localStorage.setItem('lsr_cfg', JSON.stringify(CONFIG));
+  // 설정 저장
+  safeSetItem('lsr_cfg', JSON.stringify(CONFIG));
   updateConnStatus();
 }
 function saveConfig() {
-  CONFIG.claude.key = document.getElementById('cfgClaude').value.trim() || DEFAULT_CONFIG.claude.key;
-  CONFIG.gemini.key = document.getElementById('cfgGemini').value.trim() || DEFAULT_CONFIG.gemini.key;
+  CONFIG.claude.key = document.getElementById('cfgClaude').value.trim();
+  CONFIG.gemini.key = document.getElementById('cfgGemini').value.trim();
   CONFIG.rtzr.id = document.getElementById('cfgRtzrId').value.trim();
   CONFIG.rtzr.secret = document.getElementById('cfgRtzrSecret').value.trim();
   CONFIG.tele.token = document.getElementById('cfgTeleToken').value.trim();
@@ -1649,10 +1672,10 @@ function saveConfig() {
   // Drive 필드 저장
   if (!CONFIG.drive) CONFIG.drive = {};
   const cid = document.getElementById('cfgDriveClientId');
-  if (cid) CONFIG.drive.clientId = cid.value.trim() || DEFAULT_CONFIG.drive.clientId;
+  if (cid) CONFIG.drive.clientId = cid.value.trim();
   const autoEl = document.getElementById('cfgDriveAuto');
   if (autoEl) CONFIG.drive.auto = autoEl.checked;
-  localStorage.setItem('lsr_cfg', JSON.stringify(CONFIG));
+  safeSetItem('lsr_cfg', JSON.stringify(CONFIG));
   updateConnStatus();
   showToast('✅ 설정 저장 완료');
 }
@@ -1666,11 +1689,12 @@ function updateConnStatus() {
 }
 function setCn(id, on) { const e = document.getElementById(id); e.className = 'cn ' + (on ? 'cn-y' : 'cn-n'); e.textContent = on ? '연결됨' : '미연결'; }
 
-function saveRecords() { localStorage.setItem('lsr_recs', JSON.stringify(records)); }
+function safeSetItem(key, value) { try { localStorage.setItem(key, value); return true; } catch (e) { console.error('localStorage 저장 실패:', key, e.message); showToast('⚠️ 저장 공간 부족! 불필요한 데이터를 삭제해주세요.'); return false; } }
+function saveRecords() { safeSetItem('lsr_recs', JSON.stringify(records)); }
 function loadRecords() { const s = localStorage.getItem('lsr_recs'); if (s) records = JSON.parse(s); const a = localStorage.getItem('lsr_ag'); if (a) agreements = JSON.parse(a); const p = localStorage.getItem('lsr_pins'); if (p) pins = JSON.parse(p); const r = localStorage.getItem('lsr_rsk'); if (r) risks = JSON.parse(r); const pp = localStorage.getItem('lsr_ppl'); if (pp) peopleData = JSON.parse(pp); }
 
 function exportData() {
-  const data = { recs: records, agrs: agreements, pins, risks, pplData: peopleData, config: CONFIG, version: 'v5', date: new Date().toISOString() };
+  const data = { recs: records, agrs: agreements, pins, risks, pplData: peopleData, config: CONFIG, version: 'v6.2', date: new Date().toISOString() };
   downloadFile(JSON.stringify(data, null, 2), `LSR_BACKUP_${new Date().toISOString().slice(0, 10)}.json`, 'application/json');
   showToast('📥 백업 완료');
 }
@@ -1681,28 +1705,36 @@ function importData(ev) {
     try {
       const d = JSON.parse(e.target.result);
       if (d.recs) records = d.recs; if (d.agrs) agreements = d.agrs; if (d.pins) pins = d.pins; if (d.risks) risks = d.risks; if (d.pplData) peopleData = d.pplData; if (d.config) Object.assign(CONFIG, d.config);
-      saveRecords(); localStorage.setItem('lsr_ag', JSON.stringify(agreements)); localStorage.setItem('lsr_pins', JSON.stringify(pins)); localStorage.setItem('lsr_rsk', JSON.stringify(risks)); localStorage.setItem('lsr_ppl', JSON.stringify(peopleData)); localStorage.setItem('lsr_cfg', JSON.stringify(CONFIG));
+      saveRecords(); safeSetItem('lsr_ag', JSON.stringify(agreements)); safeSetItem('lsr_pins', JSON.stringify(pins)); safeSetItem('lsr_rsk', JSON.stringify(risks)); safeSetItem('lsr_ppl', JSON.stringify(peopleData)); safeSetItem('lsr_cfg', JSON.stringify(CONFIG));
       renderAll(); showToast('✅ 복원 완료');
     } catch (e) { showToast('❌ 파일 오류'); }
   };
   reader.readAsText(f);
 }
 
-function resetAllData() {
+// SHA-256 해시 비밀번호: '0729'의 해시값
+const RESET_PW_HASH = '878f96264ece1c85973dfa3b39dec9a7dc4cf6f08168ff5a183389a36b1bb9d0';
+async function hashSHA256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function resetAllData() {
   const pw = prompt('데이터 초기화 비밀번호를 입력하세요:');
-  if (pw !== '0729') { showToast('❌ 비밀번호가 틀립니다'); return; }
+  if (!pw) return;
+  const pwHash = await hashSHA256(pw);
+  if (pwHash !== RESET_PW_HASH) { showToast('❌ 비밀번호가 틀립니다'); return; }
   if (!confirm('정말 모든 데이터를 초기화하시겠습니까?\n기록, 합의사항, 핀, 위험, 인물 데이터가 모두 삭제됩니다.')) return;
   records = []; agreements = []; pins = []; risks = [];
   peopleData = [{ name: '이성록형님', title: '핵심 사업 파트너', company: '', route: '직접', date: '2026-01-01', url: '', contact: '', memo: '' }];
-  saveRecords();
-  localStorage.setItem('lsr_ag', JSON.stringify(agreements));
-  localStorage.setItem('lsr_pins', JSON.stringify(pins));
-  localStorage.setItem('lsr_rsk', JSON.stringify(risks));
-  localStorage.setItem('lsr_ppl', JSON.stringify(peopleData));
+  safeSetItem('lsr_recs', JSON.stringify(records));
+  safeSetItem('lsr_ag', JSON.stringify(agreements));
+  safeSetItem('lsr_pins', JSON.stringify(pins));
+  safeSetItem('lsr_rsk', JSON.stringify(risks));
+  safeSetItem('lsr_ppl', JSON.stringify(peopleData));
   renderAll();
   showToast('🗑️ 데이터가 초기화되었습니다');
 }
-function removePin(id) { pins = pins.filter(p => String(p.id) !== String(id)); localStorage.setItem('lsr_pins', JSON.stringify(pins)); renderDashboard(); showToast('📌 삭제됨'); }
+function removePin(id) { pins = pins.filter(p => String(p.id) !== String(id)); safeSetItem('lsr_pins', JSON.stringify(pins)); renderDashboard(); showToast('📌 삭제됨'); }
 
 function downloadFile(content, filename, type) { const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); }
 function setStep(id, state) { const e = document.getElementById(id); e.className = 'si-it ' + state; e.querySelector('.si-d').textContent = { rn: '◌', dn: '✓', er: '✕' }[state] || '○'; }
